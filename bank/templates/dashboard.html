@@ -1,1 +1,14 @@
 {% extends 'base_template.html' %}
+{% block content %}
+    <div>
+        <p class="is-size-4 has-text-info-dark">Boháč Petr</p>
+        <p class="has-text-grey">občan</p>
+    </div>
+    <div class="columns is-multiline mt-2">
+        <div class="column is-4">
+            {% for account in accounts %}
+                {% include 'includes/account_card.html' with account=account %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,24 +1,54 @@
+import random
+import string
+
 from django.contrib.auth.models import User
 from django.db import models
 
 
 class AccountQuerySet(models.QuerySet):
-    def owned_by(self, user: User):
-        return self.filter(user=user)
+    def for_user(self, user: User):
+        return self.filter(owner=user)
+
+    def for_number(self, number: str):
+        return self.filter(account_number=number)
+
+
+def generate_account_number():
+    while True:
+        random_number = random.choices(string.digits, k=13)
+        if not Account.objects.for_number(random_number):
+            return f'{"".join(random_number[:3])}-{"".join(random_number[3:])}'
 
 
 class Account(models.Model):
+    ACCOUNT_TYPES = (
+        ('mujucet', 'MůjÚčet'),
+        ('mujucet_plus', 'MůjÚčet PLUS'),
+        ('mujucet_gold', 'MůjÚčet GOLD'),
+        ('g2', 'Studentský účet G2'),
+    )
+    account_number = models.CharField(max_length=14, editable=False, unique=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    type = models.CharField(max_length=15, choices=ACCOUNT_TYPES, default=ACCOUNT_TYPES[0])
+    name = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = AccountQuerySet.as_manager()
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.account_number = generate_account_number()
+        super().save(force_insert, force_update, using, update_fields)
 
     def get_balance(self, currency: str = None):
         account_balance = AccountBalance.objects.for_account(self)
         if currency:
             account_balance = account_balance.filter(currency=currency)
         return account_balance
+
+    @property
+    def display_name(self):
+        return self.name if self.name else self.get_type_display()
 
 
 class Currency:
