@@ -37,7 +37,8 @@ class Account(models.Model):
     objects = AccountQuerySet.as_manager()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        self.account_number = generate_account_number()
+        if self._state.adding:
+            self.account_number = generate_account_number()
         super().save(force_insert, force_update, using, update_fields)
 
     def get_balance(self, currency: str = None):
