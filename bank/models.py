@@ -98,15 +98,6 @@ class Account(models.Model):
         return self.name if self.name else self.get_type_display()
 
 
-class Currency:
-    def __init__(self, country: str, currency: str, amount: int, code: str, rate: float):
-        self.country = country
-        self.currency = currency
-        self.amount = amount
-        self.code = code
-        self.rate = rate
-
-
 class AccountBalanceQuerySet(models.QuerySet):
     def for_account(self, account: Account):
         return self.filter(account=account)
@@ -119,3 +110,9 @@ class AccountBalance(models.Model):
     balance = models.FloatField(default=0)
 
     objects = AccountBalanceQuerySet.as_manager()
+
+
+class CurrencyRate(models.Model):
+    currency = models.CharField(max_length=3, choices=CURRENCIES, unique=True)
+    rate = models.FloatField()
+    updated_at = models.DateTimeField(auto_now=True)
