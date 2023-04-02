@@ -20,68 +20,16 @@
     {% block extra_css %}{% endblock %}
     {% block js %}{% include 'includes/js.html' %}{% endblock %}
     {% block extra_js %}{% endblock %}
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        header {
-
-        }
-
-        main {
-            min-height: calc(100% - 127px - 60px);
-            padding: 20px;
-            box-sizing: border-box;
-            background-color: #f5f5f5;
-        }
-
-        footer {
-            height: 60px;
-            background-color: #f5f5f5;
-        }
-
-        .header-navbar-top {
-            height: 80px;
-        }
-
-        .header-navbar-bottom {
-            height: 45px;
-        }
-
-        .header-divider {
-            margin: 0;
-        }
-
-        .container {
-            max-width: 900px!important;
-            margin: 0 auto;
-        }
-    </style>
 </head>
 <body>
 {% block body %}
-    <header>
-        <section class="header-navbar-top container">
-            header 1
-        </section>
-        <hr class="header-divider">
-        <section class="header-navbar-bottom container">
-            navbar
-        </section>
-    </header>
+    {% include 'includes/header.html' %}
     <main>
         <div class="container">
             {% block content %}{% endblock %}
         </div>
     </main>
-    <footer class="has-background-danger">
-        <div class="container">
-            footer
-        </div>
-    </footer>
+    {% include 'includes/footer.html' %}
 {% endblock %}
 </body>
 </html>
