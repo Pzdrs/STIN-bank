@@ -1,6 +1,7 @@
 import random
 import string
 
+from babel.numbers import format_currency
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -89,7 +90,6 @@ class Account(models.Model):
         """
         return AccountBalance.objects.for_account(self).filter(currency=currency)
 
-    # TODO
     def get_total_balance(self, currency: str) -> float:
         """
         Returns a value in a given currency that sums up all the balances associated with this account
@@ -103,6 +103,22 @@ class Account(models.Model):
     def display_name(self):
         return self.name if self.name else self.get_type_display()
 
+    @property
+    def assets_overview(self):
+        def get_word_version(count: int):
+            word_versions = ['měna', 'měny', 'měn']
+            if count == 1:
+                return word_versions[0]
+            elif 1 < count < 5:
+                return word_versions[1]
+            else:
+                return word_versions[2]
+
+        balance_count = self.get_currency_balances().count()
+        if balance_count == 0:
+            return ''
+        return f'({balance_count} {get_word_version(balance_count)})'
+
 
 class AccountBalanceQuerySet(models.QuerySet):
     def for_account(self, account: Account):
@@ -110,6 +126,9 @@ class AccountBalanceQuerySet(models.QuerySet):
 
 
 class AccountBalance(models.Model):
+    class Meta:
+        unique_together = ('account', 'currency')
+
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     # ISO 4217 currency code
     currency = models.CharField(max_length=3, choices=CURRENCIES, default=CURRENCIES[0])
@@ -132,6 +151,12 @@ class AccountBalance(models.Model):
                 return self.balance * currency_rate.rate
             except ObjectDoesNotExist:
                 raise CurrencyExchangeRateNotAvailable(self.currency)
+
+    @property
+    def balance_display(self):
+        return format_currency(
+            self.balance, self.currency, format=u"#,##0.00 ¤", locale="cs_CZ"
+        )
 
 
 class CurrencyRate(models.Model):

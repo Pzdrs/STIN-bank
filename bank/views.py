@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 
 from STINBank.views import BankView
 from bank.models import Account
@@ -16,3 +16,8 @@ class DashboardView(BankView, TemplateView):
         context['accounts'] = Account.objects.for_user(self.request.user)
 
         return context
+
+
+class AccountDetailView(BankView, DetailView):
+    template_name = 'account_detail.html'
+    model = Account
