@@ -5,6 +5,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
+from STINBank.utils.config import get_bank_config
+from bank.exceptions import CurrencyExchangeRateNotAvailable
+
 CURRENCIES = (
     ('CZK', 'koruna (CZK)'), ('AUD', 'dolar (AUD)'), ('BRL', 'real (BRL)'), ('BGN', 'lev (BGN)'),
     ('CNY', 'žen-min-pi (CNY)'), ('DKK', 'koruna (DKK)'), ('EUR', 'euro (EUR)'), ('PHP', 'peso (PHP)'),
@@ -93,7 +96,7 @@ class Account(models.Model):
         """
         total_balance = 0
         for balance in self.get_currency_balances():
-            pass
+            total_balance += balance.convert_to(currency)
         return total_balance
 
     @property
@@ -113,6 +116,22 @@ class AccountBalance(models.Model):
     balance = models.FloatField(default=0)
 
     objects = AccountBalanceQuerySet.as_manager()
+
+    def convert_to(self, currency: str) -> float:
+        if self.currency == currency:
+            return self.balance
+        if self.currency == get_bank_config().base_currency:
+            try:
+                currency_rate = CurrencyRate.objects.get(currency=currency)
+                return self.balance / currency_rate.rate
+            except ObjectDoesNotExist:
+                raise CurrencyExchangeRateNotAvailable(currency)
+        if currency == get_bank_config().base_currency:
+            try:
+                currency_rate = CurrencyRate.objects.get(currency=self.currency)
+                return self.balance * currency_rate.rate
+            except ObjectDoesNotExist:
+                raise CurrencyExchangeRateNotAvailable(self.currency)
 
 
 class CurrencyRate(models.Model):
