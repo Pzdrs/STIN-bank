@@ -1,7 +1,10 @@
 {% extends 'base_template.html' %}
 {% block content %}
     <span class="is-size-4 has-text-info-dark">
-        {{ object.display_name }}
+        {{ account.display_name }}
+        {% if account.name %}
+            <span class="has-text-weight-light">({{ account.get_type_display }})</span>
+        {% endif %}
     </span>
     <br>
     <span class="is-size-6 has-text-grey">
