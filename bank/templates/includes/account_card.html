@@ -1,3 +1,4 @@
+{% load money %}
 <div class="card">
     <a href="{% url 'bank:account-detail' account.pk %}">
         <header class="card-header p-1">
@@ -13,9 +14,7 @@
     <div class="card-content p-3">
         <div class="content has-text-right" style="padding-top: 75px;">
             <p class="has-text-grey m-0">aktuální použitelný zůstatek</p>
-            <p class="is-size-5 has-text-weight-bold">
-                1 000 000,<span class="is-size-6">00 CZK</span>
-            </p>
+            {% account_balance account.get_total_balance %}
         </div>
         <div class="is-flex is-justify-content-space-around">
             <a href="{% url 'bank:account-payment' account.pk %}" class="button is-danger px-5">Platba</a>

@@ -1,8 +1,22 @@
 import random
+import random
 import string
 
+from babel.numbers import format_decimal, format_currency
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+
+CURRENCIES = (
+    ('CZK', 'koruna (CZK)'), ('AUD', 'dolar (AUD)'), ('BRL', 'real (BRL)'), ('BGN', 'lev (BGN)'),
+    ('CNY', 'žen-min-pi (CNY)'), ('DKK', 'koruna (DKK)'), ('EUR', 'euro (EUR)'), ('PHP', 'peso (PHP)'),
+    ('HKD', 'dolar (HKD)'), ('INR', 'rupie (INR)'), ('IDR', 'rupie (IDR)'), ('ISK', 'koruna (ISK)'),
+    ('ILS', 'nový šekel (ILS)'), ('JPY', 'jen (JPY)'), ('ZAR', 'rand (ZAR)'), ('CAD', 'dolar (CAD)'),
+    ('KRW', 'won (KRW)'), ('HUF', 'forint (HUF)'), ('MYR', 'ringgit (MYR)'), ('MXN', 'peso (MXN)'),
+    ('XDR', 'ZPČ (XDR)'), ('NOK', 'koruna (NOK)'), ('NZD', 'dolar (NZD)'), ('PLN', 'zlotý (PLN)'),
+    ('RON', 'leu (RON)'), ('SGD', 'dolar (SGD)'), ('SEK', 'koruna (SEK)'), ('CHF', 'frank (CHF)'),
+    ('THB', 'baht (THB)'), ('TRY', 'lira (TRY)'), ('USD', 'dolar (USD)'), ('GBP', 'libra (GBP)')
+)
 
 
 class AccountQuerySet(models.QuerySet):
@@ -18,6 +32,24 @@ def generate_account_number():
         random_number = random.choices(string.digits, k=13)
         if not Account.objects.for_number(random_number):
             return f'{"".join(random_number[:3])}-{"".join(random_number[3:])}'
+
+
+class UserPreferredCurrencyQuerySet(models.QuerySet):
+    def for_user(self, user: User):
+        try:
+            return self.get(user=user)
+        except ObjectDoesNotExist:
+            return None
+
+
+class UserPreferredCurrency(models.Model):
+    class Meta:
+        verbose_name_plural = 'User preferred currencies'
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    currency = models.CharField(max_length=3, choices=CURRENCIES)
+
+    objects = UserPreferredCurrencyQuerySet.as_manager()
 
 
 class Account(models.Model):
@@ -54,7 +86,7 @@ class Account(models.Model):
         return AccountBalance.objects.for_account(self).filter(currency=currency)
 
     # TODO
-    def get_total_balance(self, currency: str) -> float:
+    def get_total_balance(self) -> float:
         """
         Returns a value in a given currency that sums up all the balances associated with this account
         """
@@ -83,16 +115,6 @@ class AccountBalanceQuerySet(models.QuerySet):
 
 
 class AccountBalance(models.Model):
-    CURRENCIES = (
-        ('CZK', 'koruna (CZK)'), ('AUD', 'dolar (AUD)'), ('BRL', 'real (BRL)'), ('BGN', 'lev (BGN)'),
-        ('CNY', 'žen-min-pi (CNY)'), ('DKK', 'koruna (DKK)'), ('EUR', 'euro (EUR)'), ('PHP', 'peso (PHP)'),
-        ('HKD', 'dolar (HKD)'), ('INR', 'rupie (INR)'), ('IDR', 'rupie (IDR)'), ('ISK', 'koruna (ISK)'),
-        ('ILS', 'nový šekel (ILS)'), ('JPY', 'jen (JPY)'), ('ZAR', 'rand (ZAR)'), ('CAD', 'dolar (CAD)'),
-        ('KRW', 'won (KRW)'), ('HUF', 'forint (HUF)'), ('MYR', 'ringgit (MYR)'), ('MXN', 'peso (MXN)'),
-        ('XDR', 'ZPČ (XDR)'), ('NOK', 'koruna (NOK)'), ('NZD', 'dolar (NZD)'), ('PLN', 'zlotý (PLN)'),
-        ('RON', 'leu (RON)'), ('SGD', 'dolar (SGD)'), ('SEK', 'koruna (SEK)'), ('CHF', 'frank (CHF)'),
-        ('THB', 'baht (THB)'), ('TRY', 'lira (TRY)'), ('USD', 'dolar (USD)'), ('GBP', 'libra (GBP)')
-    )
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     # ISO 4217 currency code
     currency = models.CharField(max_length=3, choices=CURRENCIES, default=CURRENCIES[0])

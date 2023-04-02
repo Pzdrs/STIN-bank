@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from bank.models import Account, AccountBalance
+from bank.models import Account, AccountBalance, UserPreferredCurrency
 
 
 # Register your models here.
@@ -12,4 +12,9 @@ class AccountAdmin(admin.ModelAdmin):
 
 @admin.register(AccountBalance)
 class AccountBalanceAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(UserPreferredCurrency)
+class UserPreferredCurrencyAdmin(admin.ModelAdmin):
     pass
