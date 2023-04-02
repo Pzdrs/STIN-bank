@@ -1,7 +1,14 @@
 {% extends 'base_template.html' %}
 {% block content %}
     <div>
-        <p class="is-size-4 has-text-info-dark">Boháč Petr</p>
+        <p class="is-size-4 has-text-info-dark">
+            {% if not request.user.last_name or not request.user.first_name %}
+                Neznámý uživatel ({{ request.user.username }})
+            {% else %}
+                {{ request.user.last_name }}
+                {{ request.user.first_name }}
+            {% endif %}
+        </p>
         <p class="has-text-grey">občan</p>
     </div>
     <div class="columns mt-2">
