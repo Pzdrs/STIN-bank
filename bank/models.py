@@ -41,11 +41,27 @@ class Account(models.Model):
             self.account_number = generate_account_number()
         super().save(force_insert, force_update, using, update_fields)
 
-    def get_balance(self, currency: str = None):
-        account_balance = AccountBalance.objects.for_account(self)
-        if currency:
-            account_balance = account_balance.filter(currency=currency)
-        return account_balance
+    def get_currency_balances(self):
+        """
+        Returns an AccountBalanceQuerySet with all the balances associated with this account
+        """
+        return AccountBalance.objects.for_account(self)
+
+    def get_currency_balance(self, currency: str):
+        """
+        Returns an AccountBalanceQuerySet with all the balances in a given currency associated with this account
+        """
+        return AccountBalance.objects.for_account(self).filter(currency=currency)
+
+    # TODO
+    def get_total_balance(self, currency: str) -> float:
+        """
+        Returns a value in a given currency that sums up all the balances associated with this account
+        """
+        total_balance = 0
+        for balance in self.get_currency_balances():
+            pass
+        return total_balance
 
     @property
     def display_name(self):
