@@ -5,7 +5,7 @@
             <div class="p-4">
                 <i class="fa-solid fa-coins"></i>
             </div>
-            <div>
+            <div class="my-auto">
                 <p class="has-text-weight-bold has-text-info-dark">{{ account.display_name }}</p>
                 <p class="has-text-grey">{{ account.account_number }}/0000</p>
             </div>
@@ -14,7 +14,7 @@
     <div class="card-content p-3">
         <div class="content has-text-right" style="padding-top: 75px;">
             <p class="has-text-grey m-0">aktuální použitelný zůstatek</p>
-            {% account_balance account.get_total_balance %}
+            {% account_balance account %}
         </div>
         <div class="is-flex is-justify-content-space-around">
             <a href="{% url 'bank:account-payment' account.pk %}" class="button is-danger px-5">Platba</a>

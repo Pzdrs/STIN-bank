@@ -7,9 +7,10 @@ register = template.Library()
 
 
 @register.inclusion_tag('includes/account_balance.html', takes_context=True)
-def account_balance(context, balance):
+def account_balance(context, account):
+    currency = get_user_preferred_currency(context.request.user)
     balance = format_currency(
-        balance, get_user_preferred_currency(context.request.user), format=u"#,##0.00 ¤", locale="cs_CZ"
+        account.get_total_balance(currency), currency, format=u"#,##0.00 ¤", locale="cs_CZ"
     ).split(',')
     return {
         'balance_whole': balance[0],

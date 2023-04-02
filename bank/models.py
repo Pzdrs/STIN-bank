@@ -1,8 +1,6 @@
 import random
-import random
 import string
 
-from babel.numbers import format_decimal, format_currency
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -19,19 +17,19 @@ CURRENCIES = (
 )
 
 
+def generate_account_number():
+    while True:
+        random_number = random.choices(string.digits, k=13)
+        if not Account.objects.for_number(random_number):
+            return f'{"".join(random_number[:3])}-{"".join(random_number[3:])}'
+
+
 class AccountQuerySet(models.QuerySet):
     def for_user(self, user: User):
         return self.filter(owner=user)
 
     def for_number(self, number: str):
         return self.filter(account_number=number)
-
-
-def generate_account_number():
-    while True:
-        random_number = random.choices(string.digits, k=13)
-        if not Account.objects.for_number(random_number):
-            return f'{"".join(random_number[:3])}-{"".join(random_number[3:])}'
 
 
 class UserPreferredCurrencyQuerySet(models.QuerySet):
@@ -86,7 +84,7 @@ class Account(models.Model):
         return AccountBalance.objects.for_account(self).filter(currency=currency)
 
     # TODO
-    def get_total_balance(self) -> float:
+    def get_total_balance(self, currency: str) -> float:
         """
         Returns a value in a given currency that sums up all the balances associated with this account
         """
