@@ -66,6 +66,9 @@ class Account(models.Model):
 
     objects = AccountQuerySet.as_manager()
 
+    def __str__(self):
+        return f'{self.account_number} - {self.display_name}'
+
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self._state.adding:
             self.account_number = generate_account_number()

@@ -7,17 +7,21 @@ from bank.models import Account, AccountBalance, UserPreferredCurrency, Currency
 
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('get_account_name', 'type', 'owner')
+
+    @admin.display(description='Account name')
+    def get_account_name(self, obj: Account):
+        return obj.name if obj.name else '-'
 
 
 @admin.register(AccountBalance)
 class AccountBalanceAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('account', 'currency', 'balance')
 
 
 @admin.register(UserPreferredCurrency)
 class UserPreferredCurrencyAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('user', 'currency')
 
 
 @admin.register(CurrencyRate)
