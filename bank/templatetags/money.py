@@ -1,14 +1,13 @@
 from babel.numbers import format_currency
 from django import template
 
-from bank.utils.user import get_user_preferred_currency
 
 register = template.Library()
 
 
 @register.inclusion_tag('includes/account_balance.html', takes_context=True)
 def account_balance(context, account):
-    currency = get_user_preferred_currency(context.request.user)
+    currency = context.request.user.get_preferred_currency()
     balance = format_currency(
         account.get_total_balance(currency), currency, format=u"#,##0.00 ¤", locale="cs_CZ"
     ).split(',')

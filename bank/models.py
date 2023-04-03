@@ -2,23 +2,14 @@ import random
 import string
 
 from babel.numbers import format_currency
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from STINBank.utils.config import get_bank_config
 from bank.exceptions import CurrencyExchangeRateNotAvailable
-
-CURRENCIES = (
-    ('CZK', 'koruna (CZK)'), ('AUD', 'dolar (AUD)'), ('BRL', 'real (BRL)'), ('BGN', 'lev (BGN)'),
-    ('CNY', 'žen-min-pi (CNY)'), ('DKK', 'koruna (DKK)'), ('EUR', 'euro (EUR)'), ('PHP', 'peso (PHP)'),
-    ('HKD', 'dolar (HKD)'), ('INR', 'rupie (INR)'), ('IDR', 'rupie (IDR)'), ('ISK', 'koruna (ISK)'),
-    ('ILS', 'nový šekel (ILS)'), ('JPY', 'jen (JPY)'), ('ZAR', 'rand (ZAR)'), ('CAD', 'dolar (CAD)'),
-    ('KRW', 'won (KRW)'), ('HUF', 'forint (HUF)'), ('MYR', 'ringgit (MYR)'), ('MXN', 'peso (MXN)'),
-    ('XDR', 'ZPČ (XDR)'), ('NOK', 'koruna (NOK)'), ('NZD', 'dolar (NZD)'), ('PLN', 'zlotý (PLN)'),
-    ('RON', 'leu (RON)'), ('SGD', 'dolar (SGD)'), ('SEK', 'koruna (SEK)'), ('CHF', 'frank (CHF)'),
-    ('THB', 'baht (THB)'), ('TRY', 'lira (TRY)'), ('USD', 'dolar (USD)'), ('GBP', 'libra (GBP)')
-)
+from bank.utils.constants import CURRENCIES
 
 
 def generate_account_number():
@@ -36,34 +27,16 @@ class AccountQuerySet(models.QuerySet):
         return self.filter(account_number=number)
 
 
-class UserPreferredCurrencyQuerySet(models.QuerySet):
-    def for_user(self, user: User):
-        try:
-            return self.get(user=user)
-        except ObjectDoesNotExist:
-            return None
-
-
-class UserPreferredCurrency(models.Model):
-    class Meta:
-        verbose_name_plural = 'User preferred currencies'
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    currency = models.CharField(max_length=3, choices=CURRENCIES)
-
-    objects = UserPreferredCurrencyQuerySet.as_manager()
-
-
 class Account(models.Model):
-    ACCOUNT_TYPES = (
-        ('mujucet', 'MůjÚčet'),
-        ('mujucet_plus', 'MůjÚčet PLUS'),
-        ('mujucet_gold', 'MůjÚčet GOLD'),
-        ('g2', 'Studentský účet G2'),
-    )
+    class AccountType(models.TextChoices):
+        MUJUCET = 'mujucet', 'MůjÚčet'
+        MUJUCET_PLUS = 'mujucet_plus', 'MůjÚčet PLUS'
+        MUJUCET_GOLD = 'mujucet_gold', 'MůjÚčet GOLD'
+        G2 = 'g2', 'Studentský účet G2'
+
     account_number = models.CharField(max_length=14, editable=False, unique=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    type = models.CharField(max_length=15, choices=ACCOUNT_TYPES, default=ACCOUNT_TYPES[0])
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    type = models.CharField(max_length=15, choices=AccountType.choices, default=AccountType.MUJUCET)
     name = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

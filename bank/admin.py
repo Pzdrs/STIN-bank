@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from bank.models import Account, AccountBalance, UserPreferredCurrency, CurrencyRate
+from bank.models import Account, AccountBalance, CurrencyRate
 
 
 # Register your models here.
@@ -17,11 +17,6 @@ class AccountAdmin(admin.ModelAdmin):
 @admin.register(AccountBalance)
 class AccountBalanceAdmin(admin.ModelAdmin):
     list_display = ('account', 'currency', 'balance')
-
-
-@admin.register(UserPreferredCurrency)
-class UserPreferredCurrencyAdmin(admin.ModelAdmin):
-    list_display = ('user', 'currency')
 
 
 @admin.register(CurrencyRate)
