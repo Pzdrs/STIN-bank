@@ -139,18 +139,25 @@ class AccountBalance(models.Model):
     def convert_to(self, currency: str) -> float:
         if self.currency == currency:
             return self.balance
-        if self.currency == get_bank_config().base_currency:
-            try:
+
+        try:
+            if self.currency == get_bank_config().base_currency:
                 currency_rate = CurrencyRate.objects.get(currency=currency)
                 return self.balance / currency_rate.rate
-            except ObjectDoesNotExist:
-                raise CurrencyExchangeRateNotAvailable(currency)
-        if currency == get_bank_config().base_currency:
-            try:
+
+            if currency == get_bank_config().base_currency:
                 currency_rate = CurrencyRate.objects.get(currency=self.currency)
                 return self.balance * currency_rate.rate
-            except ObjectDoesNotExist:
-                raise CurrencyExchangeRateNotAvailable(self.currency)
+
+            currency_rate_from = CurrencyRate.objects.get(currency=self.currency)
+            currency_rate_to = CurrencyRate.objects.get(currency=currency)
+            return self.balance * currency_rate_from.rate / currency_rate_to.rate
+
+        except ObjectDoesNotExist as e:
+            print(e)
+            raise CurrencyExchangeRateNotAvailable(
+                self.currency if currency == get_bank_config().base_currency else currency
+            )
 
     @property
     def balance_display(self):
