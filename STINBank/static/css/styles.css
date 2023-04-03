@@ -29,7 +29,7 @@ a.logout:hover {
 }
 
 main {
-    min-height: calc(100% - 80px - 55px);
+    min-height: calc(100% - 80px - 60px);
     padding: 20px;
     box-sizing: border-box;
     background-color: #f5f5f5;
