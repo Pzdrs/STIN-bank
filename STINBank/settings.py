@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'STINBank',
     'bank',
     'accounts',
-    'fontawesomefree'
+    'fontawesomefree',
+    'celery'
 ]
 
 MIDDLEWARE = [

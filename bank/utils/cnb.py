@@ -1,8 +1,6 @@
 import requests
-from django.core.exceptions import ObjectDoesNotExist
 
 from STINBank.utils.config import get_bank_config
-from bank.models import CurrencyRate
 
 
 class Currency:
@@ -22,13 +20,3 @@ def fetch_rates() -> tuple[Currency]:
         data = line.split('|')
         rates.append(Currency(data[0], data[1], int(data[2]), data[3], float(data[4].replace(',', '.'))))
     return tuple(rates)
-
-
-def update_rates():
-    for currency_data in fetch_rates():
-        try:
-            currency_rate = CurrencyRate.objects.get(currency=currency_data.code)
-            currency_rate.rate = currency_data.rate
-        except ObjectDoesNotExist:
-            currency_rate = CurrencyRate(currency=currency_data.code, rate=currency_data.rate)
-        currency_rate.save()
