@@ -21,3 +21,8 @@ class DashboardView(BankView, TemplateView):
 class AccountDetailView(BankView, DetailView):
     template_name = 'account_detail.html'
     model = Account
+
+    def get_title(self):
+        return self.object.display_name
+
+
