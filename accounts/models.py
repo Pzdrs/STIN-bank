@@ -10,3 +10,6 @@ class User(AbstractUser):
 
     def get_preferred_currency(self):
         return self.preferred_currency if self.preferred_currency else get_bank_config().default_currency
+
+    def get_full_name_reversed(self):
+        return f'{self.last_name} {self.first_name}'

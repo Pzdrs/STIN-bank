@@ -4,12 +4,12 @@
             <i class="fa-solid fa-house fa-xl"></i>
         </a>
         <a href="" class="navbar-item">
-            <i class="fa-regular fa-envelope"></i>
+            <i class="fa-solid fa-envelope"></i>
             Zprávy
         </a>
         <a href="" class="navbar-item">
             <i class="fa-solid fa-user"></i>
-            Petr Bohac
+            {{ request.user.get_full_name }}
         </a>
         <a href="" class="navbar-item">
             <i class="fa-solid fa-gear"></i>
