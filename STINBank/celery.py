@@ -6,8 +6,8 @@ app = Celery(
     'STINBank',
     broker='amqp://localhost',
     backend='rpc://',
-    include=['STINBank.tasks']
 )
+
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 if __name__ == '__main__':
