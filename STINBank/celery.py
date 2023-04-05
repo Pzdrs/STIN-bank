@@ -1,14 +1,10 @@
+import os
+
 from celery import Celery
 
-from STINBank import settings
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'STINBank.settings')
 
-app = Celery(
-    'STINBank',
-    broker='amqp://localhost',
-    backend='rpc://',
-)
+app = Celery('STINBank')
 
-app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
-
-if __name__ == '__main__':
-    app.start()
+app.config_from_object('django.conf:settings', namespace='CELERY')
+app.autodiscover_tasks()

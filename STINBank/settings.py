@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from decouple import config
@@ -132,3 +133,13 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CELERY
+CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_BACKEND = 'rpc://'
+CELERY_BEAT_SCHEDULE = {
+    'exchange_rate_6h_periodical_update': {
+        'task': 'bank.tasks.update_rates',
+        'schedule': timedelta(hours=6)
+    }
+}
