@@ -141,7 +141,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CELERY_BROKER_URL = 'amqp://localhost'
 CELERY_BACKEND = 'rpc://'
 CELERY_BEAT_SCHEDULE = {
-    'exchange_rate_6h_periodical_update': {
+    'exchange_rate_6h_periodic_update': {
         'task': 'bank.tasks.update_rates',
         'schedule': timedelta(hours=6)
     }
