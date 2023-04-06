@@ -1,9 +1,11 @@
 from django.contrib.auth.views import LoginView, LogoutView
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import TemplateView
 
 from STINBank.views import BankView
+from accounts.forms import PreferredCurrencyForm, UserForm
 from accounts.models import User
-from bank.forms import PreferredCurrencyForm
 
 
 # Create your views here.
@@ -27,3 +29,9 @@ class PreferencesView(BankView, TemplateView):
             'preferred_currency': user.preferred_currency
         })
         return context
+
+    def post(self, request, *args, **kwargs):
+        user_form = UserForm(data=request.POST, instance=request.user)
+        instance = user_form.save(commit=False)
+        instance.save(update_fields=('preferred_currency',))
+        return redirect(reverse('accounts:preferences'))

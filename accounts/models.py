@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from STINBank.utils.config import get_bank_config
-from bank.utils.currency import CURRENCIES__MODELS, get_default_currency, get_currency_display
+from bank.utils.currency import CURRENCIES__MODELS, get_currency_display
 
 
 class User(AbstractUser):

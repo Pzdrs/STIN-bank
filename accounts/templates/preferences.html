@@ -13,7 +13,7 @@
         <p class="has-text-grey">Nemáte nastavenou preferovano měnu <span
                 class="has-text-weight-light">(výchozí měna je {{ default_currency.1 }})</span></p>
     {% endif %}
-    <form action="" class="mt-2">
+    <form method="post" class="mt-2">{% csrf_token %}
         <div class="field has-addons">
             {% render_form preferred_currency_form False False %}
             <div class="control">
