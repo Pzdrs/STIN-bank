@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordResetView
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
 
 from STINBank.utils.config import get_project_config
@@ -40,7 +40,7 @@ class PreferencesView(BankView, TemplateView):
 
 
 class BankPasswordChangeView(PasswordChangeView):
-    success_url = get_project_config().default_page
+    success_url = reverse_lazy('accounts:preferences')
 
     def form_valid(self, form):
         messages.success(self.request, 'Heslo úspěšně změněno.')

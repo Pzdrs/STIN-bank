@@ -20,8 +20,17 @@
                 <input type="submit" class="button is-primary" value="Změnit měnu">
             </div>
             <div class="control">
-                <input type="button" class="button is-danger" value="Zrušit preferenci" onclick="document.getElementById('id_preferred_currency').value='';this.form.submit()">
+                <input type="button" class="button is-danger" value="Zrušit preferenci"
+                       onclick="document.getElementById('id_preferred_currency').value='';this.form.submit()">
             </div>
         </div>
     </form>
+    <p class="is-size-4 has-text-info-dark mt-5">
+        Soukromí
+    </p>
+    <hr class="my-2">
+    <p class="is-size-5 has-text-info">Přihlášení</p>
+    <div class="buttons mt-2">
+        <a href="{% url 'accounts:password_change' %}" class="button is-primary">Změna hesla</a>
+    </div>
 {% endblock %}
