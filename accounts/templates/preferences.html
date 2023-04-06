@@ -1,0 +1,12 @@
+{% extends 'base_template.html' %}
+{% block content %}
+    <p class="is-size-4 has-text-info-dark">
+        Zobrazení
+    </p>
+    <hr class="my-2">
+    {% if request.user.has_preferred_currency %}
+        <p class="has-text-grey">Vaše preferovaná měna je <span class="has-text-weight-bold">{{ request.user.get_preferred_currency_display }}</span></p>
+    {% else %}
+        <p class="has-text-grey">Nemáte nastavenou preferovano měnu <span class="has-text-weight-light">(výchozí měna je {{ default_currency.1 }})</span></p>
+    {% endif %}
+{% endblock %}

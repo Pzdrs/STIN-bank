@@ -9,7 +9,7 @@ from django.db import models
 
 from STINBank.utils.config import get_bank_config
 from bank.exceptions import CurrencyExchangeRateNotAvailable
-from bank.utils.constants import CURRENCIES
+from bank.utils.currency import get_default_currency, CURRENCIES__MODELS
 
 
 def generate_account_number():
@@ -104,7 +104,7 @@ class AccountBalance(models.Model):
 
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     # ISO 4217 currency code
-    currency = models.CharField(max_length=3, choices=CURRENCIES, default=CURRENCIES[0])
+    currency = models.CharField(max_length=3, choices=CURRENCIES__MODELS, default=get_default_currency())
     balance = models.FloatField(default=0)
 
     objects = AccountBalanceQuerySet.as_manager()
@@ -126,8 +126,7 @@ class AccountBalance(models.Model):
             currency_rate_to = CurrencyRate.objects.get(currency=currency)
             return self.balance * currency_rate_from.rate / currency_rate_to.rate
 
-        except ObjectDoesNotExist as e:
-            print(e)
+        except ObjectDoesNotExist:
             raise CurrencyExchangeRateNotAvailable(
                 self.currency if currency == get_bank_config().base_currency else currency
             )
@@ -140,6 +139,6 @@ class AccountBalance(models.Model):
 
 
 class CurrencyRate(models.Model):
-    currency = models.CharField(max_length=3, choices=CURRENCIES, unique=True)
+    currency = models.CharField(max_length=3, choices=CURRENCIES__MODELS, unique=True)
     rate = models.FloatField()
     updated_at = models.DateTimeField(auto_now=True)
