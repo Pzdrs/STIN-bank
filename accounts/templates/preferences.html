@@ -1,12 +1,27 @@
 {% extends 'base_template.html' %}
+{% load template %}
 {% block content %}
     <p class="is-size-4 has-text-info-dark">
         Zobrazení
     </p>
     <hr class="my-2">
+    <p class="is-size-5 has-text-info">Preferovaná měna</p>
     {% if request.user.has_preferred_currency %}
-        <p class="has-text-grey">Vaše preferovaná měna je <span class="has-text-weight-bold">{{ request.user.get_preferred_currency_display }}</span></p>
+        <p class="has-text-grey">Vaše preferovaná měna je <span
+                class="has-text-weight-bold">{{ request.user.get_preferred_currency_display }}</span></p>
     {% else %}
-        <p class="has-text-grey">Nemáte nastavenou preferovano měnu <span class="has-text-weight-light">(výchozí měna je {{ default_currency.1 }})</span></p>
+        <p class="has-text-grey">Nemáte nastavenou preferovano měnu <span
+                class="has-text-weight-light">(výchozí měna je {{ default_currency.1 }})</span></p>
     {% endif %}
+    <form action="" class="mt-2">
+        <div class="field has-addons">
+            {% render_form preferred_currency_form False False %}
+            <div class="control">
+                <input type="submit" class="button is-primary" value="Změnit měnu">
+            </div>
+            <div class="control">
+                <input type="button" class="button is-danger" value="Zrušit preferenci" onclick="document.getElementById('id_preferred_currency').value='';this.form.submit()">
+            </div>
+        </div>
+    </form>
 {% endblock %}
