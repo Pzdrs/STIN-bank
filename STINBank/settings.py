@@ -14,6 +14,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from decouple import config
+from django.contrib import messages
 from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -137,6 +138,14 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MESSAGE_TAGS = {
+    messages.ERROR: 'is-danger',
+    messages.SUCCESS: 'is-success',
+    messages.WARNING: 'is-warning',
+    messages.INFO: 'is-info',
+    messages.DEBUG: 'is-light',
+}
 
 # CELERY
 CELERY_BROKER_URL = 'amqp://localhost'
