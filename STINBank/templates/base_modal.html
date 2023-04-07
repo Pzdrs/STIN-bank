@@ -3,20 +3,22 @@
         {% block background-content %}{% endblock %}
     </div>
     <div class="modal-content is-tiny">
-        <div class="card">
-            <header class="card-header">
-                {% block header %}{% endblock %}
-                <button class="card-header-icon modal-button-close" aria-label="close">
+        {% block modal_body %}
+            <div class="card">
+                <header class="card-header">
+                    {% block header %}{% endblock %}
+                    <button class="card-header-icon modal-button-close" aria-label="close">
                       <span class="icon">
                         <i class="fa-solid fa-xmark"></i>
                       </span>
-                </button>
-            </header>
-            <div class="card-content">
-                <div class="content text-center">
-                    {% block content %}{% endblock %}
+                    </button>
+                </header>
+                <div class="card-content">
+                    <div class="content text-center">
+                        {% block content %}{% endblock %}
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endblock %}
     </div>
 </div>

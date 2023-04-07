@@ -2,11 +2,22 @@
 {% load static %}
 {% block id %}open-2fa-qrcode{% endblock %}
 {% block animation %}modal-fx-fadeInScale{% endblock %}
-{% block header %}
-    <p class="card-header-title">
-        Naskenujte prosím tento QR kód do vaší 2FA aplikace
-    </p>
-{% endblock %}
-{% block content %}
-    <img src="/media/qr_codes/{{ request.user.pk }}.png" alt="Your QR code">
+{% block modal_body %}
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">
+                Naskenujte prosím tento QR kód do vaší 2FA aplikace
+            </p>
+            <button class="card-header-icon modal-button-close" aria-label="close">
+                <span class="icon">
+                    <i class="fa-solid fa-xmark"></i>
+                </span>
+            </button>
+        </header>
+        <div class="card-image">
+            <figure class="image">
+                <img src="/media/qr_codes/{{ request.user.pk }}.png" alt="Your QR code">
+            </figure>
+        </div>
+    </div>
 {% endblock %}
