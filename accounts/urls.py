@@ -1,12 +1,13 @@
 from django.contrib.auth.views import PasswordChangeDoneView
 from django.urls import path
 
-from accounts.views import BankLogoutView, BankLoginView, PreferencesView, BankPasswordChangeView
+from accounts.views import BankLogoutView, BankLoginView, PreferencesView, BankPasswordChangeView, BankVerifyTOTPView
 
 app_name = 'accounts'
 
 urlpatterns = [
     path("login/", BankLoginView.as_view(), name="login"),
+    path('login/verify', BankVerifyTOTPView.as_view(), name='login-totp-verify'),
     path("logout/", BankLogoutView.as_view(), name="logout"),
     path(
         "password_change/",

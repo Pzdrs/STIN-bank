@@ -7,6 +7,7 @@ from bank.utils.currency import CURRENCIES__MODELS, get_currency_display
 
 class User(AbstractUser):
     preferred_currency = models.CharField(max_length=3, choices=CURRENCIES__MODELS, null=True, blank=True)
+    pending_verification = models.BooleanField(default=True)
 
     def get_preferred_currency(self, default: bool = True):
         """
@@ -25,3 +26,10 @@ class User(AbstractUser):
 
     def get_full_name_reversed(self):
         return f'{self.last_name} {self.first_name}'
+
+    def has_pending_verification(self):
+        return self.pending_verification
+
+    def set_pending_verification(self, state: bool):
+        self.pending_verification = state
+        self.save()

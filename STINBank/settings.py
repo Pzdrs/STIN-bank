@@ -31,6 +31,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+ENABLE_2FA = True
+
 AUTH_USER_MODEL = 'accounts.User'
 
 # Application definition
@@ -48,6 +50,7 @@ INSTALLED_APPS = [
     'bank',
     'accounts',
     # Dependencies
+    'django_extensions',
     'fontawesomefree',
     'celery'
 ]
@@ -58,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'accounts.middleware.VerificationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -122,8 +126,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
-LOGIN_REDIRECT_URL = reverse_lazy('bank:dashboard')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
