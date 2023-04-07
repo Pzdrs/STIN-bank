@@ -13,7 +13,7 @@ class VerificationMiddleware(MiddlewareMixin):
         if request.user.is_authenticated:
             # Check if user has a pending verification
             if request.user.has_pending_verification():
-                if settings.ENABLE_2FA:
+                if request.user.is_using_2fa():
                     # Redirect to verification page
                     verification_url = reverse('accounts:login-totp-verify')
                     if request.path != verification_url:

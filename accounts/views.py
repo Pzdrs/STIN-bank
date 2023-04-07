@@ -24,12 +24,13 @@ class BankLoginView(BankView, LoginView):
     title = 'Přihlašte se'
 
     def get_success_url(self):
-        return reverse('accounts:login-totp-verify') if settings.ENABLE_2FA else reverse('bank:dashboard')
+        user: User = self.request.user
+        return reverse('accounts:login-totp-verify') if user.is_using_2fa() else reverse('bank:dashboard')
 
     def form_valid(self, form):
         response = super().form_valid(form)
         user: User = self.request.user
-        if settings.ENABLE_2FA:
+        if user.is_using_2fa():
             user.set_pending_verification(True)
         return response
 
@@ -47,7 +48,8 @@ class BankVerifyTOTPView(BankView, TemplateView):
     title = 'Ověření uživatele'
 
     def get(self, request, *args, **kwargs):
-        if not settings.ENABLE_2FA or (settings.ENABLE_2FA and not request.user.has_pending_verification()):
+        using_2fa = request.user.is_using_2fa()
+        if not using_2fa or (using_2fa and not request.user.has_pending_verification()):
             try:
                 return HttpResponseRedirect(request.META['HTTP_REFERER'])
             except KeyError:

@@ -31,8 +31,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-ENABLE_2FA = True
-
 AUTH_USER_MODEL = 'accounts.User'
 
 # Application definition

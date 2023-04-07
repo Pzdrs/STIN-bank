@@ -7,6 +7,7 @@ from bank.utils.currency import CURRENCIES__MODELS, get_currency_display
 
 class User(AbstractUser):
     preferred_currency = models.CharField(max_length=3, choices=CURRENCIES__MODELS, null=True, blank=True)
+    use_2fa = models.BooleanField(default=False)
     pending_verification = models.BooleanField(default=True)
 
     def get_preferred_currency(self, default: bool = True):
@@ -29,6 +30,9 @@ class User(AbstractUser):
 
     def has_pending_verification(self):
         return self.pending_verification
+
+    def is_using_2fa(self):
+        return self.use_2fa
 
     def set_pending_verification(self, state: bool):
         self.pending_verification = state
