@@ -76,6 +76,7 @@ class PreferencesView(BankView, TemplateView):
     def get_context_data(self, **kwargs):
         user: User = self.request.user
         context = super().get_context_data(**kwargs)
+        context['2fa'] = user.is_using_2fa()
         context['preferred_currency_form'] = PreferredCurrencyForm(initial={
             'preferred_currency': user.preferred_currency
         })
@@ -84,7 +85,7 @@ class PreferencesView(BankView, TemplateView):
     def post(self, request, *args, **kwargs):
         user_form = UserForm(data=request.POST, instance=request.user)
         instance = user_form.save(commit=False)
-        instance.save(update_fields=('preferred_currency',))
+        instance.save(update_fields=tuple(request.POST.keys())[1:])
         return redirect(reverse('accounts:preferences'))
 
 

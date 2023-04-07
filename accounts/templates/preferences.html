@@ -1,5 +1,10 @@
 {% extends 'base_template.html' %}
+{% load static %}
 {% load template %}
+{% block extra_js %}
+    {{ 2fa|json_script:'twoFA_status' }}
+    <script src="{% static 'js/preferences.js' %}" defer></script>
+{% endblock %}
 {% block content %}
     <p class="is-size-4 has-text-info-dark">
         Zobrazení
@@ -32,5 +37,16 @@
     <p class="is-size-5 has-text-info">Přihlášení</p>
     <div class="buttons mt-2">
         <a href="{% url 'accounts:password_change' %}" class="button is-primary">Změna hesla</a>
+    </div>
+    <div class="is-flex">
+        <p class="is-size-5 has-text-info">Dvoufázové ověření</p>
+        <div class="field ml-3">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" id="twoFAhidden" name="use_2fa">
+                <input id="twoFA_switch" type="checkbox" class="switch is-outlined" onchange="form_submit(this)">
+                <label for="twoFA_switch"></label>
+            </form>
+        </div>
     </div>
 {% endblock %}

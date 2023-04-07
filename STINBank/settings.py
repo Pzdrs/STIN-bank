@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # STINBank
     'STINBank',
     'bank',
     'accounts',
@@ -69,7 +68,6 @@ ROOT_URLCONF = 'STINBank.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,7 +129,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'STINBank', 'static')
+    *[os.path.join(BASE_DIR, app, 'static') for app in ('STINBank', 'bank', 'accounts')]
 ]
 
 # Default primary key field type
