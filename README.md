@@ -4,8 +4,13 @@
 Semestrální práce pro předmět STIN
 
 ## Features
-- [ ] 2 Factor Authentication
-- [ ] Multi-currency accounts
+- [x] 2 Factor Authentication
+  - [x] Google authenticator (qrcodes generated on the frontend)
+- [x] Multi-currency accounts
+- [x] Password change
+- [ ] Docker support
+- [ ] Tests
+- [ ] CI/CD
 
 ## Notes for my forgtful ass
 - Celery
