@@ -35,14 +35,6 @@ class BankLoginView(BankView, LoginView):
             user.set_pending_verification(True)
         return response
 
-    def post(self, request, *args, **kwargs):
-        uri = pyotp.totp.TOTP(config('TOTP_KEY')).provisioning_uri(
-            name=request.user.username,
-            issuer_name='STINBank'
-        )
-        print(uri)
-        return super().post(request, *args, **kwargs)
-
 
 class BankVerifyTOTPView(BankView, TemplateView):
     template_name = 'verify_totp.html'
