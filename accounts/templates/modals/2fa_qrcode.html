@@ -1,0 +1,12 @@
+{% extends 'base_modal.html' %}
+{% load static %}
+{% block id %}open-2fa-qrcode{% endblock %}
+{% block animation %}modal-fx-fadeInScale{% endblock %}
+{% block header %}
+    <p class="card-header-title">
+        Naskenujte prosím tento QR kód do vaší 2FA aplikace
+    </p>
+{% endblock %}
+{% block content %}
+    <img src="/media/qr_codes/{{ request.user.pk }}.png" alt="Your QR code">
+{% endblock %}

@@ -48,5 +48,12 @@
                 <label for="twoFA_switch"></label>
             </form>
         </div>
+        <button class="button modal-button" data-target="open-2fa-qrcode">
+            <i class="fa-solid fa-qrcode mr-2"></i>
+            <span>Zobrazit QR kód</span>
+        </button>
     </div>
+{% endblock %}
+{% block modals %}
+    {% include 'modals/2fa_qrcode.html' %}
 {% endblock %}

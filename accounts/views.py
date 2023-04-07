@@ -13,6 +13,7 @@ from STINBank.utils.config import get_project_config
 from STINBank.views import BankView
 from accounts.forms import PreferredCurrencyForm, UserForm
 from accounts.models import User
+from accounts.tasks import generate_qr_code
 
 
 # Create your views here.
@@ -72,6 +73,10 @@ class BankLogoutView(BankView, LogoutView):
 class PreferencesView(BankView, TemplateView):
     template_name = 'preferences.html'
     title = 'Nastavení'
+
+    def get(self, request, *args, **kwargs):
+        generate_qr_code.delay(request.user.pk)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         user: User = self.request.user
