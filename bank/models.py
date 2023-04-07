@@ -1,11 +1,13 @@
 import random
 import string
+from typing import TypeVar
 
 from babel.numbers import format_currency
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import Q
 
 from STINBank.utils.config import get_bank_config
 from bank.exceptions import CurrencyExchangeRateNotAvailable
@@ -92,6 +94,15 @@ class Account(models.Model):
             return ''
         return f'({balance_count} {get_word_version(balance_count)})'
 
+    def get_transactions(self):
+        return Transaction.objects.for_account(self)
+
+    def get_outgoing_transactions(self):
+        return Transaction.objects.outgoing(self)
+
+    def get_incoming_transactions(self):
+        return Transaction.objects.incoming(self)
+
 
 class AccountBalanceQuerySet(models.QuerySet):
     def for_account(self, account: Account):
@@ -142,3 +153,24 @@ class CurrencyRate(models.Model):
     currency = models.CharField(max_length=3, choices=CURRENCIES__MODELS, unique=True)
     rate = models.FloatField()
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class TransactionQuerySet(models.QuerySet):
+
+    def for_account(self, account: Account):
+        return self.filter(Q(origin=account) | Q(target=account))
+
+    def outgoing(self, account: Account):
+        return self.filter(origin=account)
+
+    def incoming(self, account: Account):
+        return self.filter(target=account)
+
+
+class Transaction(models.Model):
+    origin = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='origin_accounts')
+    target = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='target_accounts')
+    currency = models.CharField(max_length=3)
+    amount = models.FloatField()
+
+    objects = TransactionQuerySet.as_manager()
