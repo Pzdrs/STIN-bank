@@ -8,7 +8,7 @@ from bank.utils.currency import CURRENCIES__MODELS, get_currency_display
 class User(AbstractUser):
     preferred_currency = models.CharField(max_length=3, choices=CURRENCIES__MODELS, null=True, blank=True)
     use_2fa = models.BooleanField(default=False)
-    pending_verification = models.BooleanField(default=True)
+    pending_verification = models.BooleanField(default=False)
 
     def get_preferred_currency(self, default: bool = True):
         """
