@@ -14,7 +14,6 @@ class DashboardView(BankView, TemplateView):
         context = super().get_context_data(**kwargs)
 
         context['accounts'] = Account.objects.for_user(self.request.user)
-        Account.objects.first().get_outgoing_transactions()
 
         return context
 

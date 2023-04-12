@@ -1,0 +1,1 @@
+FROM tiangolo/django-celery:python3.11
