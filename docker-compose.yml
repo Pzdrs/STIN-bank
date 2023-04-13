@@ -1,0 +1,9 @@
+services:
+  rabbit:
+    image: rabbitmq
+  web:
+    image: stinbank:latest
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbit

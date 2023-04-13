@@ -6,12 +6,10 @@ COPY . /app
 
 RUN pip install -r requirements.txt
 
+RUN python manage.py collectstatic
+RUN python manage.py migrate
+RUN python manage.py create_default_admin
+
 EXPOSE 8000
 
-CMD ["celery", "-A STINBank", "worker", "-l", "INFO"]
-
-CMD ["celery", "-A STINBank", "beat", "-l", "INFO"]
-
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
-CMD ["python", "manage.py", "createsuperuser", ""]
+CMD ["sh", "start.sh"]
