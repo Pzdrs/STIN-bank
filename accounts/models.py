@@ -1,3 +1,5 @@
+import pyotp
+from decouple import config
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -37,3 +39,9 @@ class User(AbstractUser):
     def set_pending_verification(self, state: bool):
         self.pending_verification = state
         self.save()
+
+    def get_totp_uri(self):
+        return pyotp.totp.TOTP(config('TOTP_KEY')).provisioning_uri(
+            name=self.username,
+            issuer_name=get_bank_config().name
+        )

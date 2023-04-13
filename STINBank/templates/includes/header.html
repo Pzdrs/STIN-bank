@@ -11,7 +11,7 @@
             <i class="fa-solid fa-user"></i>
             {{ request.user.get_full_name }}
         </a>
-        <a href="{% url 'accounts:preferences' %}" class="navbar-item">
+        <a href="{% url 'accounts:preferences' %}" class="navbar-item" onclick="anchorPageLoad(this)">
             <i class="fa-solid fa-gear"></i>
             Nastavení
         </a>

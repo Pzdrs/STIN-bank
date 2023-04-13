@@ -1,4 +1,6 @@
 import pyotp
+from amqp import ConnectionForced
+from celery.app.control import Inspect
 from decouple import config
 from django.conf import settings
 from django.contrib import messages
@@ -8,7 +10,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
+from kombu.exceptions import OperationalError
 
+from STINBank.celery import app
 from STINBank.utils.config import get_project_config
 from STINBank.views import BankView
 from accounts.forms import PreferredCurrencyForm, UserForm
@@ -67,13 +71,24 @@ class PreferencesView(BankView, TemplateView):
     title = 'Nastavení'
 
     def get(self, request, *args, **kwargs):
-        generate_qr_code.delay(request.user.pk)
+        try:
+            celery_inspect: Inspect = app.control.inspect()
+            if celery_inspect.active() is None:
+                messages.warning(request, 'Celery worker není spuštěný, není možné vygenerovat 2FA QR kód.')
+            else:
+                generate_qr_code.delay(request.user.pk)
+        except Exception:
+            messages.warning(
+                request,
+                'Služba RabbitMQ pravděpodobně není k dispozici, není možné vygenerovat 2FA QR kód.'
+            )
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         user: User = self.request.user
         context = super().get_context_data(**kwargs)
         context['2fa'] = user.is_using_2fa()
+        context['fallback_totp_uri'] = user.get_totp_uri()
         context['preferred_currency_form'] = PreferredCurrencyForm(initial={
             'preferred_currency': user.preferred_currency
         })
