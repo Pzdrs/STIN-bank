@@ -5,7 +5,7 @@ from typing import TypeVar
 from babel.numbers import format_currency
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.db.models import Q
 
@@ -73,6 +73,10 @@ class Account(models.Model):
         for balance in self.get_currency_balances():
             total_balance += balance.convert_to(currency)
         return total_balance
+
+    @property
+    def get_account_number(self):
+        return f'{self.account_number}/0000'
 
     @property
     def display_name(self):
@@ -170,7 +174,18 @@ class TransactionQuerySet(models.QuerySet):
 class Transaction(models.Model):
     origin = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='origin_accounts')
     target = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='target_accounts')
-    currency = models.CharField(max_length=3)
+    currency = models.CharField(max_length=3, choices=CURRENCIES__MODELS, default=get_default_currency())
     amount = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
     objects = TransactionQuerySet.as_manager()
+
+    def clean(self):
+        if self.origin == self.target:
+            raise ValidationError('Origin and target accounts cannot be the same.')
+
+    def is_incoming(self, account: Account):
+        return self.target == account
+
+    def is_outgoing(self, account: Account):
+        return self.origin == account

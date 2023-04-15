@@ -1,0 +1,41 @@
+{% load render %}
+<tr>
+    <td>
+        <p>{{ transaction.created_at|date:'d.n.' }}</p>
+        <p class="is-size-7 has-text-grey">
+            {{ transaction.created_at.year }}
+        </p>
+    </td>
+    <td>
+        {% if is_incoming_transaction %}
+            <i class="fa-solid fa-share has-text-success"></i>
+        {% elif is_outgoing_transaction %}
+            <i class="fa-solid fa-reply has-text-danger"></i>
+        {% else %}
+            <i class="fa-solid fa-question"></i>
+        {% endif %}
+    </td>
+    <td>
+        <p class="is-size-6">
+            {% if is_incoming_transaction %}
+                {{ transaction.origin.display_name }}
+            {% elif is_outgoing_transaction %}
+                {{ transaction.target.display_name }}
+            {% endif %}
+        </p>
+        <p class="is-size-7 has-text-grey">
+            <span>
+                {% if is_incoming_transaction %}
+                    Příchozí úhrada: {{ transaction.origin.get_account_number }}
+                {% elif is_outgoing_transaction %}
+                    Odchozí úhrada: {{ transaction.target.get_account_number }}
+                {% endif %}
+            </span>
+        </p>
+    </td>
+    <td>
+        <p class="{% if is_incoming_transaction %}has-text-success-dark{% elif is_outgoing_transaction %}has-text-danger-dark{% endif %}">
+            {% render_monetary_value transaction.amount transaction.currency 6 %}
+        </p>
+    </td>
+</tr>
