@@ -8,6 +8,7 @@ class BankConfig(AppConfig):
     default_currency = 'CZK'
     # Used as a middle man for currency exchanges
     base_currency = 'CZK'
+    transaction_history_paginate_by = 10
     # TODO
     # -1 for unlimited
     max_accounts = 5

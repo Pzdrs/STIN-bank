@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView, DetailView, ListView
 
+from STINBank.utils.config import get_bank_config
 from STINBank.views import BankView
 from bank.models import Account, Transaction
 
@@ -30,7 +31,7 @@ class AccountTransactionHistoryView(BankView, ListView):
     template_name = 'transaction_history.html'
     model = Transaction
     title = 'Historie transakcí'
-    paginate_by = 10
+    paginate_by = get_bank_config().transaction_history_paginate_by
 
     account: Account = None
 
@@ -46,4 +47,4 @@ class AccountTransactionHistoryView(BankView, ListView):
         return context
 
     def get_queryset(self):
-        return self.account.get_transactions()
+        return self.account.get_transactions().order_by('-created_at')
