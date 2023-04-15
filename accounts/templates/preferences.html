@@ -1,6 +1,6 @@
 {% extends 'base_template.html' %}
+{% load common_template %}
 {% load static %}
-{% load template %}
 {% block extra_js %}
     {{ 2fa|json_script:'twoFA_status' }}
     <script src="{% static 'js/preferences.js' %}" defer></script>
