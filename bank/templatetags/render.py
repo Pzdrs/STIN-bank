@@ -18,14 +18,14 @@ def render_transaction_table_row(transaction: Transaction, account: Account, req
     }
 
 
-@register.inclusion_tag('includes/account_balance.html')
+@register.inclusion_tag('includes/monetary_value.html')
 def render_account_balance(account: Account, request: HttpRequest, size: int):
     user: User = request.user
     currency = user.get_preferred_currency()
     return render_monetary_value(account.get_total_balance(currency), currency, size)
 
 
-@register.inclusion_tag('includes/account_balance.html')
+@register.inclusion_tag('includes/monetary_value.html')
 def render_monetary_value(value: float, currency: str, size: int):
     balance = format_currency(
         value, currency, format=u"#,##0.00 ¤", locale="cs_CZ"
