@@ -30,6 +30,7 @@ class AccountTransactionHistoryView(BankView, ListView):
     template_name = 'transaction_history.html'
     model = Transaction
     title = 'Historie transakcí'
+    paginate_by = 10
 
     account: Account = None
 

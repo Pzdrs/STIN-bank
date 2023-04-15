@@ -1,5 +1,5 @@
 {% if rows %}
-    <table class="table mb-1 {% block table_class %}is-fullwidth is-hoverable{% endblock %}">
+    <table class="table {% block table_class %}mb-1 is-fullwidth is-hoverable{% endblock %}">
         <thead>
         <tr>{% block head %}{% endblock %}</tr>
         </thead>
@@ -10,7 +10,7 @@
         </tbody>
     </table>
     {% if paginator %}
-        {% include 'includes/pagination/pagination.html' with paginator=paginator page_obj=records %}
+        {% include 'includes/pagination/pagination.html' with paginator=paginator page_obj=page_obj %}
     {% endif %}
     {% if limit %}
         <section>
