@@ -15,11 +15,11 @@
         <span class="is-size-5 has-text-info">Zůstatek</span>
         <span class="is-size-6 has-text-grey-light">{{ object.assets_overview }}</span>
     </p>
-    {% if not object.get_currency_balances %}
+    {% if not object.get_balances %}
         <span class="has-text-grey-light">Nic zde zatím není</span>
     {% endif %}
     <div class="columns is-multiline">
-        {% for currency_balance in object.get_currency_balances %}
+        {% for currency_balance in object.get_balances %}
             {% include 'includes/account_balance_card.html' with balance=currency_balance %}
         {% endfor %}
     </div>

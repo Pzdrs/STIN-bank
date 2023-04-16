@@ -90,7 +90,7 @@ class ChangeDefaultCurrencyBalance(BankView, View):
     def post(self, request, *args, **kwargs):
         account: Account = Account.objects.get(pk=self.kwargs['pk'])
         current_default_balance: AccountBalance = account.get_default_balance()
-        new_default_balance: AccountBalance = account.get_currency_balance(request.POST['currency'])
+        new_default_balance: AccountBalance = account.get_balance(request.POST['currency'])
         new_default_balance.set_default()
         messages.success(
             request,

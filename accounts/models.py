@@ -12,17 +12,8 @@ class User(AbstractUser):
     use_2fa = models.BooleanField(default=False)
     pending_verification = models.BooleanField(default=False)
 
-    def get_preferred_currency(self, default: bool = True):
-        """
-        Returns the user preferred currency. If the default argument is True, in the case of the user
-        not having a preferred currency, the default currency is returned
-        """
-        if not self.preferred_currency and default:
-            return get_bank_config().default_currency
-        return self.preferred_currency
-
     def get_preferred_currency_display(self):
-        return get_currency_display(self.get_preferred_currency())
+        return get_currency_display(self.preferred_currency)
 
     def has_preferred_currency(self):
         return self.preferred_currency is not None

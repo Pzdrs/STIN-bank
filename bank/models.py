@@ -51,13 +51,13 @@ class Account(models.Model):
             self.account_number = generate_account_number()
         super().save(force_insert, force_update, using, update_fields)
 
-    def get_currency_balances(self):
+    def get_balances(self):
         """
         Returns an AccountBalanceQuerySet with all the balances associated with this account
         """
         return AccountBalance.objects.for_account(self)
 
-    def get_currency_balance(self, currency: str):
+    def get_balance(self, currency: str):
         """
         Returns an AccountBalanceQuerySet with all the balances in a given currency associated with this account
         """
@@ -70,14 +70,17 @@ class Account(models.Model):
         """
         :returns: an AccountBalance with the balance in the default currency associated with this account
         """
-        return self.get_currency_balances().default(self)
+        return self.get_balances().default(self)
+
+    def get_default_currency(self) -> str:
+        return self.get_default_balance().currency
 
     def get_total_balance(self, currency: str) -> float:
         """
         Returns a value in a given currency that sums up all the balances associated with this account
         """
         total_balance = 0
-        for balance in self.get_currency_balances():
+        for balance in self.get_balances():
             total_balance += balance.convert_to(currency)
         return total_balance
 
@@ -100,7 +103,7 @@ class Account(models.Model):
             else:
                 return word_versions[2]
 
-        balance_count = self.get_currency_balances().count()
+        balance_count = self.get_balances().count()
         if balance_count == 0:
             return ''
         return f'({balance_count} {get_word_version(balance_count)})'
@@ -149,12 +152,12 @@ class AccountBalance(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         # If this is the first balance for the account, set it as default
-        if self.account.get_currency_balances().count() == 0:
+        if self.account.get_balances().count() == 0:
             self.default_balance = True
         super().save(force_insert, force_update, using, update_fields)
 
     def set_default(self):
-        self.account.get_currency_balances().update(default_balance=False)
+        self.account.get_balances().update(default_balance=False)
         self.default_balance = True
         self.save()
 
@@ -219,12 +222,12 @@ class Transaction(models.Model):
 
     def authorize(self):
         # check if the origin account has got sufficient funds according to the currency
-        origin_balance = self.origin.get_currency_balance(self.currency)
+        origin_balance = self.origin.get_balance(self.currency)
         if not origin_balance or origin_balance.balance < self.amount:
             raise Transaction.InsufficientFunds(self.currency)
         # everything on the originating side is fine
         # now we need to check if the target account has got a balance in the same currency
-        target_balance = self.target.get_currency_balance(self.currency)
+        target_balance = self.target.get_balance(self.currency)
         if target_balance:
             origin_balance.subtract_funds(self.amount)
             target_balance.add_funds(self.amount)

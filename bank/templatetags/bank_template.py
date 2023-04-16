@@ -21,7 +21,7 @@ def render_transaction_table_row(transaction: Transaction, account: Account, req
 @register.inclusion_tag('includes/monetary_value.html')
 def render_account_balance(account: Account, request: HttpRequest, size: int):
     user: User = request.user
-    currency = user.get_preferred_currency()
+    currency = user.preferred_currency or account.get_default_currency()
     return render_monetary_value(account.get_total_balance(currency), currency, size)
 
 

@@ -15,8 +15,7 @@
         <p class="has-text-grey">Vaše preferovaná měna je <span
                 class="has-text-weight-bold">{{ request.user.get_preferred_currency_display }}</span></p>
     {% else %}
-        <p class="has-text-grey">Nemáte nastavenou preferovano měnu <span
-                class="has-text-weight-light">(výchozí měna je {{ default_currency.1 }})</span></p>
+        <p class="has-text-grey">Nemáte nastavenou preferovano měnu</p>
     {% endif %}
     <form method="post" class="mt-2">{% csrf_token %}
         <div class="field has-addons">

@@ -27,7 +27,7 @@ class TransactionForm(forms.Form):
         if account:
             self.fields['origin_account_pk'].initial = account.pk
             self.fields['currency'].choices = (
-                (bal.currency, CURRENCIES[bal.currency]) for bal in account.get_currency_balances()
+                (bal.currency, CURRENCIES[bal.currency]) for bal in account.get_balances()
             )
             # TODO: set initial currency to the one set as default in the account
             # self.fields['currency'].initial = smtn
