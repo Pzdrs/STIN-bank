@@ -19,7 +19,7 @@ class User(AbstractUser):
         return self.preferred_currency is not None
 
     def get_full_name_reversed(self):
-        return f'{self.last_name} {self.first_name}'
+        return f'{self.last_name} {self.first_name}'.strip()
 
     def has_pending_verification(self):
         return self.pending_verification

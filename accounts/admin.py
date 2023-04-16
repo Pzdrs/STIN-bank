@@ -6,7 +6,7 @@ from accounts.models import User
 
 
 @admin.register(User)
-class UserAdmin(UserAdmin):
+class AccountsUserAdmin(UserAdmin):
     list_display = ("username", "email", "first_name", "last_name", "is_staff", "use_2fa", "pending_verification")
 
     def get_fieldsets(self, request, obj=None):

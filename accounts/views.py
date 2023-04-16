@@ -55,7 +55,7 @@ class BankVerifyTOTPView(BankView, TemplateView):
 
     def post(self, request, *args, **kwargs):
         totp = pyotp.TOTP(config('TOTP_KEY'))
-        if not totp.verify(request.POST['code']):
+        if not ('code' in request.POST.keys() and totp.verify(request.POST['code'])):
             return super().get(request, *args, **kwargs)
         request.user.set_pending_verification(False)
         return redirect(get_project_config().default_page)
