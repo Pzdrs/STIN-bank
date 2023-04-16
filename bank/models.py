@@ -63,7 +63,10 @@ class Account(models.Model):
         """
         Returns an AccountBalanceQuerySet with all the balances in a given currency associated with this account
         """
-        return AccountBalance.objects.for_account(self).filter(currency=currency)
+        try:
+            return AccountBalance.objects.for_account(self).get(currency=currency)
+        except ObjectDoesNotExist:
+            return None
 
     def get_total_balance(self, currency: str) -> float:
         """
@@ -172,6 +175,11 @@ class TransactionQuerySet(models.QuerySet):
 
 
 class Transaction(models.Model):
+    class InsufficientFunds(Exception):
+
+        def __init__(self, currency: str) -> None:
+            super().__init__(f'Pro tuto transakci v měně {currency} nemáte dostatek prostředků.')
+
     origin = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='origin_accounts')
     target = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='target_accounts')
     currency = models.CharField(max_length=3, choices=CURRENCIES__MODELS, default=get_default_currency())
@@ -189,3 +197,11 @@ class Transaction(models.Model):
 
     def is_outgoing(self, account: Account):
         return self.origin == account
+
+    def authorize(self):
+        # check if the origin account has got sufficient funds according to the currency
+        origin_balance = self.origin.get_currency_balance(self.currency)
+        if not origin_balance or origin_balance.balance < self.amount:
+            raise Transaction.InsufficientFunds(self.currency)
+        # everything on the originating side is fine
+
