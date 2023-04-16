@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, DetailView, ListView, CreateView, FormView
+from django.views.generic import TemplateView, DetailView, ListView, FormView
 
 from STINBank.utils.config import get_bank_config
 from STINBank.utils.template import push_form_errors_to_messages
