@@ -9,7 +9,6 @@ from STINBank.utils.template import push_form_errors_to_messages
 from STINBank.views import BankView
 from bank.forms import TransactionForm
 from bank.models import Account, Transaction, AccountBalance
-from bank.tasks import authorize_transaction
 
 
 # Create your views here.
@@ -78,11 +77,17 @@ class AccountTransactionView(BankView, FormView):
         return super().form_invalid(form)
 
     def form_valid(self, form):
-        authorize_transaction(
-            self.request,
-            form.origin_account, form.target_account,
-            form.cleaned_data['currency'], float(form.cleaned_data['amount'])
+        transaction = Transaction(
+            origin=form.origin_account,
+            target=form.target_account,
+            currency=form.cleaned_data['currency'],
+            amount=float(form.cleaned_data['amount'])
         )
+        try:
+            transaction.authorize()
+            messages.success(self.request, 'Transakce byla úspěšně provedena.')
+        except Transaction.InsufficientFunds as e:
+            messages.error(self.request, str(e))
         return super().form_valid(form)
 
 
