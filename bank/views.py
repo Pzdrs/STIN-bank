@@ -81,7 +81,7 @@ class AccountTransactionView(BankView, FormView):
         authorize_transaction(
             self.request,
             form.origin_account, form.target_account,
-            form.cleaned_data['currency'], form.cleaned_data['amount']
+            form.cleaned_data['currency'], float(form.cleaned_data['amount'])
         )
         return super().form_valid(form)
 

@@ -232,3 +232,14 @@ class Transaction(models.Model):
         if not origin_balance or origin_balance.balance < self.amount:
             raise Transaction.InsufficientFunds(self.currency)
         # everything on the originating side is fine
+        # now we need to check if the target account has got a balance in the same currency
+        target_balance = self.target.get_currency_balance(self.currency)
+        if target_balance:
+            origin_balance.balance -= self.amount
+            target_balance.balance += self.amount
+        else:
+            default_balance = self.target.get_default_balance()
+            # convert to the default currency and add the amount
+        origin_balance.save()
+        target_balance.save()
+        self.save()
