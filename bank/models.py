@@ -119,13 +119,27 @@ class AccountBalanceQuerySet(models.QuerySet):
 class AccountBalance(models.Model):
     class Meta:
         unique_together = ('account', 'currency')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['account', 'default_balance'],
+                condition=models.Q(default_balance=True),
+                name='unique_default_balance'
+            ),
+        ]
 
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     # ISO 4217 currency code
     currency = models.CharField(max_length=3, choices=CURRENCIES__MODELS, default=get_default_currency())
     balance = models.FloatField(default=0)
+    default_balance = models.BooleanField(default=False)
 
     objects = AccountBalanceQuerySet.as_manager()
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        # If this is the first balance for the account, set it as default
+        if self.account.get_currency_balances().count() == 0:
+            self.default_balance = True
+        super().save(force_insert, force_update, using, update_fields)
 
     def convert_to(self, currency: str) -> float:
         if self.currency == currency:
@@ -204,4 +218,3 @@ class Transaction(models.Model):
         if not origin_balance or origin_balance.balance < self.amount:
             raise Transaction.InsufficientFunds(self.currency)
         # everything on the originating side is fine
-

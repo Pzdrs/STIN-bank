@@ -16,7 +16,7 @@ class AccountAdmin(admin.ModelAdmin):
 
 @admin.register(AccountBalance)
 class AccountBalanceAdmin(admin.ModelAdmin):
-    list_display = ('account', 'currency', 'balance')
+    list_display = ('account', 'currency', 'balance', 'default_balance')
 
 
 @admin.register(CurrencyRate)
