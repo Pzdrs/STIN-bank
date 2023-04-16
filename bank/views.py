@@ -1,12 +1,14 @@
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
+from django.views import View
 from django.views.generic import TemplateView, DetailView, ListView, CreateView, FormView
 
 from STINBank.utils.config import get_bank_config
 from STINBank.utils.template import push_form_errors_to_messages
 from STINBank.views import BankView
 from bank.forms import TransactionForm
-from bank.models import Account, Transaction
+from bank.models import Account, Transaction, AccountBalance
 from bank.tasks import authorize_transaction
 
 
@@ -82,3 +84,16 @@ class AccountTransactionView(BankView, FormView):
             form.cleaned_data['currency'], form.cleaned_data['amount']
         )
         return super().form_valid(form)
+
+
+class ChangeDefaultCurrencyBalance(BankView, View):
+    def post(self, request, *args, **kwargs):
+        account: Account = Account.objects.get(pk=self.kwargs['pk'])
+        current_default_balance: AccountBalance = account.get_default_balance()
+        new_default_balance: AccountBalance = account.get_currency_balance(request.POST['currency'])
+        new_default_balance.set_default()
+        messages.success(
+            request,
+            f'Výchozí měna účtu byla změněna z {current_default_balance.currency} na {new_default_balance.currency}.'
+        )
+        return HttpResponseRedirect(reverse('bank:account-detail', kwargs={'pk': account.pk}))

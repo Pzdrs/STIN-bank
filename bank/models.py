@@ -68,6 +68,12 @@ class Account(models.Model):
         except ObjectDoesNotExist:
             return None
 
+    def get_default_balance(self):
+        """
+        :returns: an AccountBalance with the balance in the default currency associated with this account
+        """
+        return self.get_currency_balances().default()
+
     def get_total_balance(self, currency: str) -> float:
         """
         Returns a value in a given currency that sums up all the balances associated with this account
@@ -112,8 +118,11 @@ class Account(models.Model):
 
 
 class AccountBalanceQuerySet(models.QuerySet):
-    def for_account(self, account: Account):
+    def for_account(self, account: Account) -> 'AccountBalanceQuerySet':
         return self.filter(account=account)
+
+    def default(self) -> 'AccountBalance':
+        return self.get(default_balance=True)
 
 
 class AccountBalance(models.Model):
@@ -140,6 +149,11 @@ class AccountBalance(models.Model):
         if self.account.get_currency_balances().count() == 0:
             self.default_balance = True
         super().save(force_insert, force_update, using, update_fields)
+
+    def set_default(self):
+        self.account.get_currency_balances().update(default_balance=False)
+        self.default_balance = True
+        self.save()
 
     def convert_to(self, currency: str) -> float:
         if self.currency == currency:

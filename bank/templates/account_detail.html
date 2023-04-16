@@ -8,7 +8,7 @@
     </span>
     <br>
     <span class="is-size-6 has-text-grey">
-        {{ object.account_number }}/0000
+        {{ object.get_account_number }}
     </span>
     <hr class="my-2">
     <p class="mb-2">
@@ -22,11 +22,21 @@
         {% for currency_balance in object.get_currency_balances %}
             <div class="column is-4">
                 <div class="card">
-                    <header class="card-header">
+                    <header class="card-header is-flex is-justify-content-space-between">
                         <p class="px-3 py-4 has-text-weight-medium">
                             {{ currency_balance.balance_display }}
                             <span class="has-text-weight-light">({{ currency_balance.currency }})</span>
                         </p>
+                        {% if currency_balance.default_balance %}
+                            <span class="tag is-success is-light" style="border-radius: 0 4px 0 4px">Default</span>
+                        {% else %}
+                            <form action="{% url 'bank:account-change-default-currency' currency_balance.account.pk %}"
+                                  method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="currency" value="{{ currency_balance.currency }}">
+                                <input type="checkbox" onclick="this.form.submit()" class="m-2" title="Nastavit tuto měnu jako výchozí pro tento účet">
+                            </form>
+                        {% endif %}
                     </header>
                 </div>
             </div>
