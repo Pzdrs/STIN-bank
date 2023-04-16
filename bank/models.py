@@ -1,6 +1,5 @@
 import random
 import string
-from typing import TypeVar
 
 from babel.numbers import format_currency
 from django.contrib.auth import get_user_model
@@ -10,8 +9,7 @@ from django.db import models
 from django.db.models import Q
 
 from STINBank.utils.config import get_bank_config
-from bank.exceptions import CurrencyExchangeRateNotAvailable
-from bank.utils.currency import get_default_currency, CURRENCIES__MODELS
+from bank.utils.currency import get_default_currency, CURRENCIES__MODELS, convert
 
 
 def generate_account_number():
@@ -72,7 +70,7 @@ class Account(models.Model):
         """
         :returns: an AccountBalance with the balance in the default currency associated with this account
         """
-        return self.get_currency_balances().default()
+        return self.get_currency_balances().default(self)
 
     def get_total_balance(self, currency: str) -> float:
         """
@@ -121,8 +119,13 @@ class AccountBalanceQuerySet(models.QuerySet):
     def for_account(self, account: Account) -> 'AccountBalanceQuerySet':
         return self.filter(account=account)
 
-    def default(self) -> 'AccountBalance':
-        return self.get(default_balance=True)
+    def default(self, account: Account) -> 'AccountBalance':
+        try:
+            return self.for_account(account).get(default_balance=True)
+        except ObjectDoesNotExist:
+            return AccountBalance.objects.create(
+                account=account, currency=get_bank_config().default_currency
+            )
 
 
 class AccountBalance(models.Model):
@@ -155,27 +158,15 @@ class AccountBalance(models.Model):
         self.default_balance = True
         self.save()
 
+    def add_funds(self, amount: float):
+        self.balance += amount
+        self.save()
+
+    def subtract_funds(self, amount: float):
+        self.add_funds(-amount)
+
     def convert_to(self, currency: str) -> float:
-        if self.currency == currency:
-            return self.balance
-
-        try:
-            if self.currency == get_bank_config().base_currency:
-                currency_rate = CurrencyRate.objects.get(currency=currency)
-                return self.balance / currency_rate.rate
-
-            if currency == get_bank_config().base_currency:
-                currency_rate = CurrencyRate.objects.get(currency=self.currency)
-                return self.balance * currency_rate.rate
-
-            currency_rate_from = CurrencyRate.objects.get(currency=self.currency)
-            currency_rate_to = CurrencyRate.objects.get(currency=currency)
-            return self.balance * currency_rate_from.rate / currency_rate_to.rate
-
-        except ObjectDoesNotExist:
-            raise CurrencyExchangeRateNotAvailable(
-                self.currency if currency == get_bank_config().base_currency else currency
-            )
+        return convert(self.balance, self.currency, currency)
 
     @property
     def balance_display(self):
@@ -235,11 +226,12 @@ class Transaction(models.Model):
         # now we need to check if the target account has got a balance in the same currency
         target_balance = self.target.get_currency_balance(self.currency)
         if target_balance:
-            origin_balance.balance -= self.amount
-            target_balance.balance += self.amount
+            origin_balance.subtract_funds(self.amount)
+            target_balance.add_funds(self.amount)
         else:
-            default_balance = self.target.get_default_balance()
-            # convert to the default currency and add the amount
-        origin_balance.save()
-        target_balance.save()
+            origin_balance.subtract_funds(self.amount)
+            target_default_balance = self.target.get_default_balance()
+            target_default_balance.add_funds(
+                convert(self.amount, self.currency, target_default_balance.currency)
+            )
         self.save()
