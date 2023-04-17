@@ -41,7 +41,26 @@
                 {{ add_funds_form.amount }}
             </p>
             <p class="control">
-                <input type="submit" class="button" value="Přidat prostředky">
+                <input type="submit" class="button is-success" value="Přidat prostředky">
+            </p>
+        </div>
+    </form>
+    <p class="my-2">
+        <span class="is-size-6 has-text-info">Odebrat prostředky</span>
+    </p>
+    <form action="{% url 'bank:account-subtract-funds' object.pk %}" method="post">
+        {% csrf_token %}
+        <div class="field has-addons">
+            <p class="control">
+                <span class="select">
+                  {{ add_funds_form.currency }}
+                </span>
+            </p>
+            <p class="control">
+                {{ add_funds_form.amount }}
+            </p>
+            <p class="control">
+                <input type="submit" class="button is-warning" value="Odebrat prostředky">
             </p>
         </div>
     </form>

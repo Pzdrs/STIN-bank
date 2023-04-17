@@ -114,12 +114,20 @@ class ChangeDefaultCurrencyBalance(BankView, View):
 class AddFundsView(BankView, View):
     def post(self, request, *args, **kwargs):
         account: Account = Account.objects.get(pk=self.kwargs['pk'])
-        transaction = Transaction(
-            type=Transaction.TransactionType.DEPOSIT,
-            origin=account, target=account,
-            currency=request.POST['currency'],
-            amount=float(request.POST['amount'])
+        Transaction.objects.create_non_transfer(
+            account, Transaction.TransactionType.DEPOSIT,
+            float(request.POST['amount']), request.POST['currency'],
+            request
         )
-        transaction.authorize()
-        messages.success(request, 'Peníze byly úspěšně připsány na účet.')
+        return HttpResponseRedirect(reverse('bank:account-detail', kwargs={'pk': account.pk}))
+
+
+class SubtractFundsView(BankView, View):
+    def post(self, request, *args, **kwargs):
+        account: Account = Account.objects.get(pk=self.kwargs['pk'])
+        Transaction.objects.create_non_transfer(
+            account, Transaction.TransactionType.WITHDRAWAL,
+            float(request.POST['amount']), request.POST['currency'],
+            request
+        )
         return HttpResponseRedirect(reverse('bank:account-detail', kwargs={'pk': account.pk}))

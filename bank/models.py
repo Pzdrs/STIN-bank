@@ -2,11 +2,13 @@ import random
 import string
 
 from babel.numbers import format_currency
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.db.models import Q
+from django.http import HttpRequest
 
 from STINBank.utils.config import get_bank_config
 from bank.utils.currency import get_default_currency, CURRENCIES__MODELS, convert
@@ -107,7 +109,7 @@ class Account(models.Model):
         Subtracts funds from the default currency balance of this account
         """
         currency_balance: AccountBalance = self.get_balance(currency)
-        if currency_balance:
+        if currency_balance and currency_balance.balance >= amount:
             currency_balance.subtract_funds(amount)
         else:
             raise Transaction.InsufficientFunds(currency)
@@ -213,6 +215,35 @@ class CurrencyRate(models.Model):
 
 
 class TransactionQuerySet(models.QuerySet):
+    def create_non_transfer(
+            self,
+            account: Account,
+            transaction_type: 'Transaction.TransactionType',
+            amount: float, currency: str,
+            request: HttpRequest = None
+    ):
+        transaction = Transaction(type=transaction_type, currency=currency, amount=amount)
+        match transaction_type:
+            case Transaction.TransactionType.DEPOSIT:
+                transaction.target = account
+            case Transaction.TransactionType.WITHDRAWAL:
+                transaction.origin = account
+
+        # Attempt to authorize the transaction, handle all exceptions
+        try:
+            transaction.authorize()
+        except (Transaction.InsufficientFunds, Transaction.InvalidTransactionType) as e:
+            if request:
+                messages.error(request, str(e))
+            else:
+                raise e
+
+        # If the transaction was authorized and the request was passed, display a success message
+        if request:
+            if transaction_type == Transaction.TransactionType.DEPOSIT:
+                messages.success(request, 'Peníze byly úspěšně připsány na účet.')
+            elif transaction_type == Transaction.TransactionType.WITHDRAWAL:
+                messages.success(request, 'Peníze byly úspěšně vybrány z účtu.')
 
     def for_account(self, account: Account):
         return self.filter(Q(origin=account) | Q(target=account))
