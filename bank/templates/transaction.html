@@ -1,0 +1,9 @@
+{% extends 'base_template.html' %}
+{% load common_template %}
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        {% render_form form %}
+        <input type="submit" class="button is-primary" value="Autorizovat platbu">
+    </form>
+{% endblock %}

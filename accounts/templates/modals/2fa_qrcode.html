@@ -19,5 +19,20 @@
                 <img src="/media/qr_codes/{{ request.user.pk }}.png" alt="Your QR code">
             </figure>
         </div>
+        <div class="card-footer">
+            <div class="p-2">
+                <p>
+                    Pokud se QR kód nezobrazí, zkuste obnovit stránku. V případě,
+                    že problém přetrvává, níže naleznete OTP URI.
+
+                </p>
+                <details style="border: 1px solid #dbdbdb;border-radius: 4px;padding: 0.5rem;">
+                    <summary style="cursor: pointer">OTP URI</summary>
+                    <p>
+                        {{ fallback_totp_uri }}
+                    </p>
+                </details>
+            </div>
+        </div>
     </div>
 {% endblock %}

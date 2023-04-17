@@ -16,3 +16,7 @@ Semestrální práce pro předmět STIN
 - Celery
   - run the worker => celery -A STINBank worker (-l INFO) (-P gevent - pro windejsy)
   - run the scheduler => celery -A STINBank beat (-l INFO)
+
+## Time tracking
+### Desktop: 35h
+### Laptop: 7.25h

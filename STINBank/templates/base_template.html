@@ -27,20 +27,16 @@
     <main>
         <div class="container">
             {% block messages %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="notification {{ message.tags }}">
-                            <button class="delete" onclick="this.parentElement.remove()"></button>
-                            {{ message|safe }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
+                {% include 'includes/messages.html' %}
             {% endblock %}
             {% block content %}{% endblock %}
         </div>
     </main>
     {% include 'includes/footer.html' %}
     {% block modals %}{% endblock %}
+    {% block pageloader %}
+        {% include 'includes/page_loader.html' %}
+    {% endblock %}
 {% endblock %}
 </body>
 </html>

@@ -1,35 +1,67 @@
 {% extends 'base_template.html' %}
 {% block content %}
     <span class="is-size-4 has-text-info-dark">
-        {{ account.display_name }}
-        {% if account.name %}
-            <span class="has-text-weight-light">({{ account.get_type_display }})</span>
+        {{ object.display_name }}
+        {% if object.name %}
+            <span class="has-text-weight-light">({{ object.get_type_display }})</span>
         {% endif %}
     </span>
     <br>
     <span class="is-size-6 has-text-grey">
-        {{ object.account_number }}/0000
+        {{ object.get_account_number }}
     </span>
     <hr class="my-2">
     <p class="mb-2">
         <span class="is-size-5 has-text-info">Zůstatek</span>
         <span class="is-size-6 has-text-grey-light">{{ object.assets_overview }}</span>
     </p>
-    {% if not object.get_currency_balances %}
+    {% if not object.get_balances %}
         <span class="has-text-grey-light">Nic zde zatím není</span>
     {% endif %}
     <div class="columns is-multiline">
-        {% for currency_balance in object.get_currency_balances %}
-            <div class="column is-4">
-                <div class="card">
-                    <header class="card-header">
-                        <p class="px-3 py-4 has-text-weight-medium">
-                            {{ currency_balance.balance_display }}
-                            <span class="has-text-weight-light">({{ currency_balance.currency }})</span>
-                        </p>
-                    </header>
-                </div>
-            </div>
+        {% for currency_balance in object.get_balances %}
+            {% include 'includes/account_balance_card.html' with balance=currency_balance %}
         {% endfor %}
     </div>
+    <p class="mb-2">
+        <span class="is-size-5 has-text-info">Prostředky</span>
+    </p>
+    <p class="mb-2">
+        <span class="is-size-6 has-text-info">Přidat prostředky</span>
+    </p>
+    <form action="{% url 'bank:account-add-funds' object.pk %}" method="post">
+        {% csrf_token %}
+        <div class="field has-addons">
+            <p class="control">
+                <span class="select">
+                  {{ alter_funds_form.currency }}
+                </span>
+            </p>
+            <p class="control">
+                {{ alter_funds_form.amount }}
+            </p>
+            <p class="control">
+                <input type="submit" class="button is-success" value="Přidat prostředky">
+            </p>
+        </div>
+    </form>
+    <p class="my-2">
+        <span class="is-size-6 has-text-info">Odebrat prostředky</span>
+    </p>
+    <form action="{% url 'bank:account-subtract-funds' object.pk %}" method="post">
+        {% csrf_token %}
+        <div class="field has-addons">
+            <p class="control">
+                <span class="select">
+                  {{ alter_funds_form.currency }}
+                </span>
+            </p>
+            <p class="control">
+                {{ alter_funds_form.amount }}
+            </p>
+            <p class="control">
+                <input type="submit" class="button is-warning" value="Odebrat prostředky">
+            </p>
+        </div>
+    </form>
 {% endblock %}

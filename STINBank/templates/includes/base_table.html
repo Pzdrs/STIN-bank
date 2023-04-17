@@ -1,0 +1,34 @@
+{% if rows %}
+    <table class="table {% block table_class %}mb-1 is-fullwidth is-hoverable{% endblock %}">
+        <thead>
+        <tr>{% block head %}{% endblock %}</tr>
+        </thead>
+        <tbody>
+        {% for row in rows %}
+            {% block for_each_row %}{% endblock %}
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if paginator %}
+        {% include 'includes/pagination/pagination.html' with paginator=paginator page_obj=page_obj %}
+    {% endif %}
+    {% if limit %}
+        <section>
+            <p class="has-text-grey-light mb-2">Showing {{ limit }} results</p>
+            <div class="buttons is-justify-content-center">
+                <a href="?{{ limit_query_parameter }}={{ limit|add:base_limit }}#{{ limit_button_id }}"
+                   class="button"
+                   id="{{ limit_button_id }}">
+                    Show more
+                </a>
+                <a onclick="clearPaginationUrl('{{ limit_query_parameter }}')" class="button">Reset</a>
+            </div>
+        </section>
+    {% endif %}
+{% else %}
+    <span class="has-text-grey-light">
+        {% block empty_message %}
+            No records found.
+        {% endblock %}
+    </span>
+{% endif %}
