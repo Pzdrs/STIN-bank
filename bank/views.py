@@ -1,10 +1,11 @@
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpRequest
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, DetailView, ListView, FormView
 
 from STINBank.utils.config import get_bank_config
+from STINBank.utils.permissions import require_account_owner
 from STINBank.utils.template import push_form_errors_to_messages
 from STINBank.views import BankView
 from bank.forms import TransactionForm, AlterFundsForm
@@ -29,6 +30,9 @@ class AccountDetailView(BankView, DetailView):
     template_name = 'account_detail.html'
     model = Account
 
+    def test_func(self, request: HttpRequest, *args, **kwargs):
+        return self.get_object().owner == request.user
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -48,8 +52,11 @@ class AccountTransactionHistoryView(BankView, ListView):
 
     account: Account = None
 
+    def test_func(self, request: HttpRequest, *args, **kwargs):
+        return require_account_owner(kwargs['pk'], request.user)
+
     def get(self, request, *args, **kwargs):
-        self.account = Account.objects.get(pk=self.kwargs['pk'])
+        self.account = Account.objects.get(pk=kwargs['pk'])
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -69,6 +76,9 @@ class AccountTransactionView(BankView, FormView):
     title = 'Transakce'
     success_url = reverse_lazy('bank:dashboard')
     account: Account = None
+
+    def test_func(self, request: HttpRequest, *args, **kwargs):
+        return require_account_owner(kwargs['pk'], request.user)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -99,6 +109,9 @@ class AccountTransactionView(BankView, FormView):
 
 
 class ChangeDefaultCurrencyBalance(BankView, View):
+    def test_func(self, request: HttpRequest, *args, **kwargs):
+        return require_account_owner(kwargs['pk'], request.user)
+
     def post(self, request, *args, **kwargs):
         account: Account = Account.objects.get(pk=self.kwargs['pk'])
         current_default_balance: AccountBalance = account.get_default_balance()
@@ -112,6 +125,9 @@ class ChangeDefaultCurrencyBalance(BankView, View):
 
 
 class AddFundsView(BankView, View):
+    def test_func(self, request: HttpRequest, *args, **kwargs):
+        return require_account_owner(kwargs['pk'], request.user)
+
     def post(self, request, *args, **kwargs):
         account: Account = Account.objects.get(pk=self.kwargs['pk'])
         Transaction.objects.create_non_transfer(
@@ -123,6 +139,9 @@ class AddFundsView(BankView, View):
 
 
 class SubtractFundsView(BankView, View):
+    def test_func(self, request: HttpRequest, *args, **kwargs):
+        return require_account_owner(kwargs['pk'], request.user)
+
     def post(self, request, *args, **kwargs):
         account: Account = Account.objects.get(pk=self.kwargs['pk'])
         Transaction.objects.create_non_transfer(
