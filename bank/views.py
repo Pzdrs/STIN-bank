@@ -7,7 +7,7 @@ from django.views.generic import TemplateView, DetailView, ListView, FormView
 from STINBank.utils.config import get_bank_config
 from STINBank.utils.template import push_form_errors_to_messages
 from STINBank.views import BankView
-from bank.forms import TransactionForm
+from bank.forms import TransactionForm, AddFundsForm
 from bank.models import Account, Transaction, AccountBalance
 
 
@@ -28,6 +28,13 @@ class DashboardView(BankView, TemplateView):
 class AccountDetailView(BankView, DetailView):
     template_name = 'account_detail.html'
     model = Account
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['add_funds_form'] = AddFundsForm()
+
+        return context
 
     def get_title(self):
         return self.object.display_name
@@ -101,4 +108,12 @@ class ChangeDefaultCurrencyBalance(BankView, View):
             request,
             f'Výchozí měna účtu byla změněna z {current_default_balance.currency} na {new_default_balance.currency}.'
         )
+        return HttpResponseRedirect(reverse('bank:account-detail', kwargs={'pk': account.pk}))
+
+
+class AddFundsView(BankView, View):
+    def post(self, request, *args, **kwargs):
+        account: Account = Account.objects.get(pk=self.kwargs['pk'])
+        account.add_funds(float(request.POST['amount']), request.POST['currency'])
+        messages.success(request, 'Peníze byly úspěšně připsány na účet.')
         return HttpResponseRedirect(reverse('bank:account-detail', kwargs={'pk': account.pk}))

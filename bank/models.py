@@ -84,6 +84,16 @@ class Account(models.Model):
             total_balance += balance.convert_to(currency)
         return total_balance
 
+    def add_funds(self, amount: float, currency: str):
+        """
+        Adds funds to the default currency balance of this account
+        """
+        currency_balance: AccountBalance = self.get_balance(currency)
+        if currency_balance:
+            currency_balance.add_funds(amount)
+        else:
+            AccountBalance.objects.create(account=self, currency=currency, balance=amount)
+
     @property
     def get_account_number(self):
         return f'{self.account_number}/0000'

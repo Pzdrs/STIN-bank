@@ -42,3 +42,11 @@ class TransactionForm(forms.Form):
             raise forms.ValidationError('Cílový účet neexistuje.')
 
         return cleaned_data
+
+
+class AddFundsForm(forms.Form):
+    currency = forms.ChoiceField(label='Měna', choices=CURRENCIES__MODELS)
+    amount = forms.DecimalField(
+        max_digits=12, decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'input', 'placeholder': 'Částka'})
+    )

@@ -1,9 +1,9 @@
 {% extends 'base_template.html' %}
 {% block content %}
     <span class="is-size-4 has-text-info-dark">
-        {{ account.display_name }}
-        {% if account.name %}
-            <span class="has-text-weight-light">({{ account.get_type_display }})</span>
+        {{ object.display_name }}
+        {% if object.name %}
+            <span class="has-text-weight-light">({{ object.get_type_display }})</span>
         {% endif %}
     </span>
     <br>
@@ -23,4 +23,26 @@
             {% include 'includes/account_balance_card.html' with balance=currency_balance %}
         {% endfor %}
     </div>
+    <p class="mb-2">
+        <span class="is-size-5 has-text-info">Prostředky</span>
+    </p>
+    <p class="mb-2">
+        <span class="is-size-6 has-text-info">Přidat prostředky</span>
+    </p>
+    <form action="{% url 'bank:account-add-funds' object.pk %}" method="post">
+        {% csrf_token %}
+        <div class="field has-addons">
+            <p class="control">
+                <span class="select">
+                  {{ add_funds_form.currency }}
+                </span>
+            </p>
+            <p class="control">
+                {{ add_funds_form.amount }}
+            </p>
+            <p class="control">
+                <input type="submit" class="button" value="Přidat prostředky">
+            </p>
+        </div>
+    </form>
 {% endblock %}

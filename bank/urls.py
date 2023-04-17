@@ -3,7 +3,7 @@ from django.urls import path
 
 from STINBank.utils.config import get_project_config
 from bank.views import DashboardView, AccountDetailView, AccountTransactionHistoryView, AccountTransactionView, \
-    ChangeDefaultCurrencyBalance
+    ChangeDefaultCurrencyBalance, AddFundsView
 
 app_name = 'bank'
 
@@ -17,5 +17,6 @@ urlpatterns = [
         'account/<int:pk>/change-default-currency',
         ChangeDefaultCurrencyBalance.as_view(),
         name='account-change-default-currency'
-    )
+    ),
+    path('account/<int:pk>/add-funds', AddFundsView.as_view(), name='account-add-funds'),
 ]
