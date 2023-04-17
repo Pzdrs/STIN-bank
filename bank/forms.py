@@ -44,7 +44,7 @@ class TransactionForm(forms.Form):
         return cleaned_data
 
 
-class AddFundsForm(forms.Form):
+class AlterFundsForm(forms.Form):
     currency = forms.ChoiceField(label='Měna', choices=CURRENCIES__MODELS)
     amount = forms.DecimalField(
         max_digits=12, decimal_places=2,

@@ -7,7 +7,7 @@ from django.views.generic import TemplateView, DetailView, ListView, FormView
 from STINBank.utils.config import get_bank_config
 from STINBank.utils.template import push_form_errors_to_messages
 from STINBank.views import BankView
-from bank.forms import TransactionForm, AddFundsForm
+from bank.forms import TransactionForm, AlterFundsForm
 from bank.models import Account, Transaction, AccountBalance
 
 
@@ -32,7 +32,7 @@ class AccountDetailView(BankView, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['add_funds_form'] = AddFundsForm()
+        context['alter_funds_form'] = AlterFundsForm()
 
         return context
 
