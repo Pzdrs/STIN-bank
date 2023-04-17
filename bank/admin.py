@@ -26,4 +26,4 @@ class CurrencyRateAdmin(admin.ModelAdmin):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('origin', 'target', 'currency', 'amount')
+    list_display = ('type', 'origin', 'target', 'currency', 'amount')

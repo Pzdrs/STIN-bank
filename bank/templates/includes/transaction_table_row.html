@@ -7,34 +7,50 @@
         </p>
     </td>
     <td>
-        {% if is_incoming_transaction %}
-            <i class="fa-solid fa-share has-text-success"></i>
-        {% elif is_outgoing_transaction %}
-            <i class="fa-solid fa-reply has-text-danger"></i>
-        {% else %}
-            <i class="fa-solid fa-question"></i>
+        {% if transaction.type == 'TRANSFER' %}
+            {% if is_incoming_transfer %}
+                <i class="fa-solid fa-share has-text-success"></i>
+            {% elif is_outgoing_transfer %}
+                <i class="fa-solid fa-reply has-text-danger"></i>
+            {% else %}
+                <i class="fa-solid fa-question"></i>
+            {% endif %}
+        {% elif transaction.type == 'DEPOSIT' %}
+            <i class="fa-solid fa-money-bill-transfer has-text-success"></i>
+        {% elif transaction.type == 'WITHDRAWAL' %}
+            <i class="fa-solid fa-money-bill-transfer has-text-danger"></i>
         {% endif %}
     </td>
     <td>
         <p class="is-size-6">
-            {% if is_incoming_transaction %}
-                {{ transaction.origin.display_name }}
-            {% elif is_outgoing_transaction %}
-                {{ transaction.target.display_name }}
+            {% if transaction.type == 'TRANSFER' %}
+                {% if is_incoming_transfer %}
+                    {{ transaction.origin.display_name }}
+                {% elif is_outgoing_transfer %}
+                    {{ transaction.target.display_name }}
+                {% else %}
+
+                {% endif %}
+            {% elif transaction.type == 'DEPOSIT' %}
+                Vklad na účet
+            {% elif transaction.type == 'WITHDRAWAL' %}
+                Výběr z bankomatu
             {% endif %}
         </p>
         <p class="is-size-7 has-text-grey">
             <span>
-                {% if is_incoming_transaction %}
-                    Příchozí úhrada: {{ transaction.origin.get_account_number }}
-                {% elif is_outgoing_transaction %}
-                    Odchozí úhrada: {{ transaction.target.get_account_number }}
+                {% if transaction.type == 'TRANSFER' %}
+                    {% if is_incoming_transfer %}
+                        Příchozí úhrada: {{ transaction.origin.get_account_number }}
+                    {% elif is_outgoing_transfer %}
+                        Odchozí úhrada: {{ transaction.target.get_account_number }}
+                    {% endif %}
                 {% endif %}
             </span>
         </p>
     </td>
     <td>
-        <p class="{% if is_incoming_transaction %}has-text-success-dark{% elif is_outgoing_transaction %}has-text-danger-dark{% endif %}">
+        <p class="{% if transaction_direction < 0 %}has-text-danger-dark{% elif transaction_direction > 0 %}has-text-success-dark{% endif %}">
             {% render_monetary_value transaction.amount transaction.currency 6 %}
         </p>
     </td>

@@ -84,15 +84,33 @@ class Account(models.Model):
             total_balance += balance.convert_to(currency)
         return total_balance
 
-    def add_funds(self, amount: float, currency: str):
+    def add_funds(self, amount: float, currency: str, convert_over_create: bool = False):
         """
         Adds funds to the default currency balance of this account
+        The default behavior is to create a new balance in the specified currency, if it doesn't exist
+        If convert_over_create is set to True, the funds will be converted and added to the default balance (in that currency)
         """
         currency_balance: AccountBalance = self.get_balance(currency)
         if currency_balance:
             currency_balance.add_funds(amount)
         else:
-            AccountBalance.objects.create(account=self, currency=currency, balance=amount)
+            if convert_over_create:
+                default_balance = self.get_default_balance()
+                default_balance.add_funds(
+                    convert(amount, currency, default_balance.currency)
+                )
+            else:
+                AccountBalance.objects.create(account=self, currency=currency, balance=amount)
+
+    def subtract_funds(self, amount: float, currency: str):
+        """
+        Subtracts funds from the default currency balance of this account
+        """
+        currency_balance: AccountBalance = self.get_balance(currency)
+        if currency_balance:
+            currency_balance.subtract_funds(amount)
+        else:
+            raise Transaction.InsufficientFunds(currency)
 
     @property
     def get_account_number(self):
@@ -105,7 +123,7 @@ class Account(models.Model):
     @property
     def assets_overview(self):
         def get_word_version(count: int):
-            word_versions = ['měna', 'měny', 'měn']
+            word_versions = ('měna', 'měny', 'měn')
             if count == 1:
                 return word_versions[0]
             elif 1 < count < 5:
@@ -212,8 +230,19 @@ class Transaction(models.Model):
         def __init__(self, currency: str) -> None:
             super().__init__(f'Pro tuto transakci v měně {currency} nemáte dostatek prostředků.')
 
-    origin = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='origin_accounts')
-    target = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='target_accounts')
+    class InvalidTransactionType(Exception):
+
+        def __init__(self, transaction_type: str) -> None:
+            super().__init__(f'Transakce typu {transaction_type} není podporována.')
+
+    class TransactionType(models.TextChoices):
+        TRANSFER = 'TRANSFER', 'Převod'
+        DEPOSIT = 'DEPOSIT', 'Vklad'
+        WITHDRAWAL = 'WITHDRAWAL', 'Výběr'
+
+    type = models.CharField(max_length=10, choices=TransactionType.choices, default=TransactionType.TRANSFER)
+    origin = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='origin_accounts', null=True, blank=True)
+    target = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='target_accounts', null=True, blank=True)
     currency = models.CharField(max_length=3, choices=CURRENCIES__MODELS, default=get_default_currency())
     amount = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -223,28 +252,51 @@ class Transaction(models.Model):
     def clean(self):
         if self.origin == self.target:
             raise ValidationError('Origin and target accounts cannot be the same.')
+        # if transaction is transfer, both origin and target must be set
+        if self.type == self.TransactionType.TRANSFER and (not self.origin or not self.target):
+            raise ValidationError('Origin and target must be set for a transfer transaction.')
+        # if transaction is deposit, only target must be set
+        if self.type == self.TransactionType.DEPOSIT and (self.origin or not self.target):
+            raise ValidationError('Target must be set for a deposit.')
+        # if transaction is withdrawal, only origin must be set
+        if self.type == self.TransactionType.WITHDRAWAL and (not self.origin or self.target):
+            raise ValidationError('Origin must be set for a withdrawal.')
 
     def is_incoming(self, account: Account):
+        if self.type != self.TransactionType.TRANSFER:
+            return False
         return self.target == account
 
     def is_outgoing(self, account: Account):
+        if self.type != self.TransactionType.TRANSFER:
+            return False
         return self.origin == account
 
+    def get_direction(self, account: Account):
+        """
+        :returns: 1 if the transaction is incoming (inflow of funds), -1 if the transaction is
+        outgoing (outflow of funds), 0 if the transaction is not related to the account
+        """
+        if self.type == self.TransactionType.TRANSFER:
+            if self.origin == account:
+                return -1
+            if self.target == account:
+                return 1
+        if self.type == self.TransactionType.DEPOSIT:
+            return 1
+        if self.type == self.TransactionType.WITHDRAWAL:
+            return -1
+        return 0
+
     def authorize(self):
-        # check if the origin account has got sufficient funds according to the currency
-        origin_balance = self.origin.get_balance(self.currency)
-        if not origin_balance or origin_balance.balance < self.amount:
-            raise Transaction.InsufficientFunds(self.currency)
-        # everything on the originating side is fine
-        # now we need to check if the target account has got a balance in the same currency
-        target_balance = self.target.get_balance(self.currency)
-        if target_balance:
-            origin_balance.subtract_funds(self.amount)
-            target_balance.add_funds(self.amount)
-        else:
-            origin_balance.subtract_funds(self.amount)
-            target_default_balance = self.target.get_default_balance()
-            target_default_balance.add_funds(
-                convert(self.amount, self.currency, target_default_balance.currency)
-            )
+        match self.type:
+            case self.TransactionType.TRANSFER:
+                self.origin.subtract_funds(self.amount, self.currency)
+                self.target.add_funds(self.amount, self.currency, convert_over_create=True)
+            case self.TransactionType.DEPOSIT:
+                self.target.add_funds(self.amount, self.currency)
+            case self.TransactionType.WITHDRAWAL:
+                self.origin.subtract_funds(self.amount, self.currency)
+            case _:
+                raise Transaction.InvalidTransactionType(self.type)
         self.save()

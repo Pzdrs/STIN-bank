@@ -13,8 +13,9 @@ def render_transaction_table_row(transaction: Transaction, account: Account, req
     return {
         'transaction': transaction,
         'account': account,
-        'is_incoming_transaction': transaction.is_incoming(account),
-        'is_outgoing_transaction': transaction.is_outgoing(account),
+        'transaction_direction': transaction.get_direction(account),
+        'is_incoming_transfer': transaction.is_incoming(account),
+        'is_outgoing_transfer': transaction.is_outgoing(account),
     }
 
 

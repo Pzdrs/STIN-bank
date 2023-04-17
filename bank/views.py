@@ -114,6 +114,12 @@ class ChangeDefaultCurrencyBalance(BankView, View):
 class AddFundsView(BankView, View):
     def post(self, request, *args, **kwargs):
         account: Account = Account.objects.get(pk=self.kwargs['pk'])
-        account.add_funds(float(request.POST['amount']), request.POST['currency'])
+        transaction = Transaction(
+            type=Transaction.TransactionType.DEPOSIT,
+            origin=account, target=account,
+            currency=request.POST['currency'],
+            amount=float(request.POST['amount'])
+        )
+        transaction.authorize()
         messages.success(request, 'Peníze byly úspěšně připsány na účet.')
         return HttpResponseRedirect(reverse('bank:account-detail', kwargs={'pk': account.pk}))
