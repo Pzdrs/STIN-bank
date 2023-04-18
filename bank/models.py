@@ -238,6 +238,7 @@ class TransactionQuerySet(models.QuerySet):
                 messages.error(request, str(e))
             else:
                 raise e
+            return
 
         # If the transaction was authorized and the request was passed, display a success message
         if request:
