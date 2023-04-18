@@ -1,5 +1,8 @@
+import os
+
 import pyotp
 from decouple import config
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -11,6 +14,13 @@ class User(AbstractUser):
     preferred_currency = models.CharField(max_length=3, choices=CURRENCIES__MODELS, null=True, blank=True)
     use_2fa = models.BooleanField(default=False)
     pending_verification = models.BooleanField(default=False)
+
+    def delete(self, using=None, keep_parents=False):
+        # check if they have a qrcode generated and delete it
+        path = os.path.join(settings.MEDIA_ROOT, 'qr_codes', f'{self.pk}.png')
+        if os.path.exists(path):
+            os.remove(path)
+        return super().delete(using, keep_parents)
 
     def get_preferred_currency_display(self):
         return get_currency_display(self.preferred_currency)

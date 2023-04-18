@@ -92,6 +92,7 @@ class Account(models.Model):
         The default behavior is to create a new balance in the specified currency, if it doesn't exist
         If convert_over_create is set to True, the funds will be converted and added to the default balance (in that currency)
         """
+        amount = abs(amount)
         currency_balance: AccountBalance = self.get_balance(currency)
         if currency_balance:
             currency_balance.add_funds(amount)

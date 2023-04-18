@@ -6,7 +6,9 @@ from accounts.views import BankLogoutView, BankLoginView, PreferencesView, BankP
 app_name = 'accounts'
 
 urlpatterns = [
-    path("login/", BankLoginView.as_view(), name="login"),
+    path("login/", BankLoginView.as_view(
+
+    ), name="login"),
     path('login/verify', BankVerifyTOTPView.as_view(), name='login-totp-verify'),
     path("logout/", BankLogoutView.as_view(), name="logout"),
     path(
