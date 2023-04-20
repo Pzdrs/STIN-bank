@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ develop ]
 
+env:
+  SECRET_KEY: 185c6bc55723fd8b1b005536c2a92fcf62e167e0a775015664
+
 jobs:
   build:
     runs-on: ubuntu-latest
