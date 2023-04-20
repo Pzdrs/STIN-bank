@@ -4,7 +4,7 @@ from accounts.models import User
 
 
 class Command(BaseCommand):
-    help = 'Fetches the exchange rates from CNB and updates the database'
+    help = 'Creates a demo user'
 
     def handle(self, *args, **kwargs):
         admin: User = User(
@@ -12,3 +12,5 @@ class Command(BaseCommand):
             is_staff=True, is_superuser=True
         )
         admin.set_password('admin')
+        admin.save()
+        print(f'Created demo user: {admin.username}')

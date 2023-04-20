@@ -29,8 +29,7 @@ class TransactionForm(forms.Form):
             self.fields['currency'].choices = (
                 (bal.currency, CURRENCIES[bal.currency]) for bal in account.get_balances()
             )
-            # TODO: set initial currency to the one set as default in the account
-            # self.fields['currency'].initial = smtn
+            self.fields['currency'].initial = account.get_default_currency()
 
     def clean(self):
         cleaned_data = super().clean()

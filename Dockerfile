@@ -8,7 +8,7 @@ RUN pip install -r requirements.txt
 
 RUN python manage.py collectstatic
 RUN python manage.py migrate
-RUN python manage.py create_default_admin
+RUN python manage.py setup_demo
 
 EXPOSE 8000
 
