@@ -1,0 +1,10 @@
+docs/
+htmlcov/
+media/
+.coverage
+db.sqlite3
+docker-compose.yml
+Dockerfile
+README.md
+venv/
+.git/
