@@ -19,4 +19,4 @@ Semestrální práce pro předmět STIN
 
 ## Time tracking
 ### Desktop: 35h
-### Laptop: 7.25h
+### Laptop: 10.25h
