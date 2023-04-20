@@ -8,6 +8,7 @@ on:
 
 env:
   SECRET_KEY: 185c6bc55723fd8b1b005536c2a92fcf62e167e0a775015664
+  TOTP_KEY: 347cf3c4193dbcbedd4975b8a87b63a086e76eeb8421f6d4e7
 
 jobs:
   build:
