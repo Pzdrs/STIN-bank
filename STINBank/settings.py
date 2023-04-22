@@ -24,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -150,8 +150,16 @@ MESSAGE_TAGS = {
 }
 
 # CELERY
-CELERY_BROKER_URL = 'amqp://localhost'
-CELERY_BACKEND = 'rpc://'
+RABBITMQ = {
+    "PROTOCOL": "amqp",  # in prod change with "amqps"
+    "HOST": os.getenv("RABBITMQ_HOST", "localhost"),
+    "PORT": os.getenv("RABBITMQ_PORT", 5672),
+    "USER": os.getenv("RABBITMQ_USER", "guest"),
+    "PASSWORD": os.getenv("RABBITMQ_PASSWORD", "guest"),
+}
+
+CELERY_BROKER_URL = f"{RABBITMQ['PROTOCOL']}://{RABBITMQ['USER']}:{RABBITMQ['PASSWORD']}@{RABBITMQ['HOST']}:{RABBITMQ['PORT']}"
+
 CELERY_BEAT_SCHEDULE = {
     'exchange_rate_6h_periodic_update': {
         'task': 'bank.tasks.update_rates',
