@@ -141,8 +141,7 @@ class ModelTests(TestCase):
         # Create a user object and generate a qrcode for them
         user = User.objects.create(username='testuser')
         qrcode_path = os.path.join(settings.MEDIA_ROOT, 'qr_codes', f'{user.pk}.png')
-        with open(qrcode_path, 'w') as f:
-            f.write('test qrcode')
+        qrcode.make(user.get_totp_uri()).save(qrcode_path)
         # Check that the qrcode file exists
         self.assertTrue(os.path.exists(qrcode_path))
         # Delete the user
