@@ -9,7 +9,7 @@ Semestrální práce pro předmět STIN
 - [x] Multi-currency accounts
 - [x] Password change
 - [ ] Docker support
-- [ ] Tests
+- [x] Tests
 - [ ] CI/CD
 
 ## Notes for my forgtful ass
