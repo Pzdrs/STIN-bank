@@ -1,9 +1,14 @@
+import os
+from unittest.mock import patch, MagicMock
+
+import png
 import pyotp
+import qrcode
 from decouple import config
+from django.conf import settings
 from django.contrib.admin import AdminSite
-from django.contrib.auth import login
-from django.http import HttpResponse, HttpResponseRedirect, QueryDict
-from django.middleware import csrf
+from django.core.files import File
+from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
@@ -13,7 +18,7 @@ from accounts.admin import AccountsUserAdmin
 from accounts.forms import UserForm
 from accounts.middleware import VerificationMiddleware
 from accounts.models import User
-from accounts.views import BankVerifyTOTPView, BankPasswordChangeView
+from accounts.views import BankVerifyTOTPView
 from bank.utils.currency import get_currency_display
 
 
@@ -44,6 +49,10 @@ class ModelAdminTests(TestCase):
         ]
 
         self.assertEqual(user_admin.get_fieldsets(self.request, self.request.user), expected_fieldsets)
+
+    def test_mock_super_user(self):
+        su = MockSuperUser()
+        self.assertTrue(su.has_perm('perm'))
 
 
 class FormTests(TestCase):
@@ -128,6 +137,30 @@ class ModelTests(TestCase):
             f'otpauth://totp/{get_bank_config().name}:{self.user.username}?secret={config("TOTP_KEY")}&issuer={get_bank_config().name}'
         )
 
+    def test_qrcode_deletion_on_delete(self):
+        # Create a user object and generate a qrcode for them
+        user = User.objects.create(username='testuser')
+        qrcode_path = os.path.join(settings.MEDIA_ROOT, 'qr_codes', f'{user.pk}.png')
+        with open(qrcode_path, 'w') as f:
+            f.write('test qrcode')
+        # Check that the qrcode file exists
+        self.assertTrue(os.path.exists(qrcode_path))
+        # Delete the user
+        user.delete()
+        # Check that the user was deleted and the qrcode file was deleted
+        self.assertFalse(User.objects.filter(pk=user.pk).exists())
+        self.assertFalse(os.path.exists(qrcode_path))
+
+    def test_qrcode_generation(self):
+        # Create a user object
+        user = User.objects.create(username='testuser')
+        # Call the generate_qr_code task
+        from accounts.tasks import generate_qr_code
+        generate_qr_code(user.pk)
+        # Check that the qrcode file exists
+        qrcode_path = os.path.join(settings.MEDIA_ROOT, 'qr_codes', f'{user.pk}.png')
+        self.assertTrue(os.path.exists(qrcode_path))
+
 
 class ViewTests(TestCase):
     def setUp(self) -> None:
@@ -184,3 +217,31 @@ class ViewTests(TestCase):
         self.assertEqual(response.url, get_project_config().default_page)
         # the user should no longer have a pending verification
         self.assertFalse(self.user.has_pending_verification())
+
+    def test_password_change_success(self):
+        self.client.login(username='test', password='test')
+        url = reverse('accounts:password_change')
+        data = {'old_password': 'test', 'new_password1': 'new_password', 'new_password2': 'new_password'}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('accounts:preferences'))
+
+    def test_user_preferences_post(self):
+        self.client.login(username='test', password='test')
+
+        data = {
+            'username': 'test',
+            'email': 'testuser2@example.com',
+            'first_name': 'Test',
+            'last_name': 'User',
+        }
+        response = self.client.post( reverse('accounts:preferences'), data)
+        self.assertEqual(response.status_code, 302)  # success redirects to success_url
+        self.assertRedirects(response, reverse('accounts:preferences'))
+
+        # Check that the user was updated with the new data
+        updated_user = User.objects.get(id=self.user.id)
+        self.assertEqual(updated_user.username, data['username'])
+        self.assertEqual(updated_user.email, data['email'])
+        self.assertEqual(updated_user.first_name, data['first_name'])
+        self.assertEqual(updated_user.last_name, data['last_name'])
