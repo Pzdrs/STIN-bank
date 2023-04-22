@@ -2,9 +2,16 @@ version: '3.8'
 services:
   rabbit:
     image: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   web:
     image: pycrs/stinbank:latest
+    environment:
+      - RABBITMQ_HOST=rabbit
+      - RABBITMQ_PORT=5672
     ports:
-      - "8000:8000"
+      - "${PORT:-8000}:8000"
     depends_on:
       - rabbit
