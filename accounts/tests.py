@@ -18,6 +18,7 @@ from accounts.admin import AccountsUserAdmin
 from accounts.forms import UserForm
 from accounts.middleware import VerificationMiddleware
 from accounts.models import User
+from accounts.tasks import generate_qr_code
 from accounts.views import BankVerifyTOTPView
 from bank.utils.currency import get_currency_display
 
@@ -140,8 +141,8 @@ class ModelTests(TestCase):
     def test_qrcode_deletion_on_delete(self):
         # Create a user object and generate a qrcode for them
         user = User.objects.create(username='testuser')
+        generate_qr_code(user.pk)
         qrcode_path = os.path.join(settings.MEDIA_ROOT, 'qr_codes', f'{user.pk}.png')
-        qrcode.make(user.get_totp_uri()).save(qrcode_path)
         # Check that the qrcode file exists
         self.assertTrue(os.path.exists(qrcode_path))
         # Delete the user
