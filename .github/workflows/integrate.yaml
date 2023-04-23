@@ -11,7 +11,7 @@ env:
   TOTP_KEY: FX7ZQHIT7VWAM75MMDHD2S3WDQLXS
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
