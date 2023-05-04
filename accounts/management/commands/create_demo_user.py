@@ -4,7 +4,7 @@ from accounts.models import User
 
 
 class Command(BaseCommand):
-    help = 'Creates a demo user'
+    help = 'Creates a demo user.'
 
     def handle(self, *args, **kwargs):
         admin: User = User(
