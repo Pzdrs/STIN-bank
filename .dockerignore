@@ -1,10 +1,12 @@
+.github/
 docs/
 htmlcov/
 media/
+nginx/
+venv/
 .coverage
+.gitignore
 db.sqlite3
 docker-compose.yml
 Dockerfile
 README.md
-venv/
-.git/

@@ -1,17 +1,28 @@
 version: '3.8'
 services:
-  rabbit:
-    image: rabbitmq
+  django_gunicorn:
+    build: .
+    volumes:
+      - static:/static
+    env_file:
+      - .env
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "8000:8000"
 
-  web:
-    image: pycrs/stinbank:latest
-    environment:
-      - RABBITMQ_HOST=rabbit
-      - RABBITMQ_PORT=5672
+  nginx:
+    build: nginx
+    volumes:
+      - static:/static
     ports:
-      - "${PORT:-8000}:8000"
+      - "80:80"
     depends_on:
-      - rabbit
+      - django_gunicorn
+
+#  rabbit:
+#    image: rabbitmq
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+
+volumes:
+  static:
