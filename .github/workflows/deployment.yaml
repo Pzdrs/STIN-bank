@@ -2,7 +2,7 @@ name: Deploy to a VM at my house
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -22,3 +22,14 @@ jobs:
           config_file: .github/workflows/client.ovpn
           username: ${{ secrets.OVPN_USERNAME }}
           password: ${{ secrets.OVPN_PASSWORD }}
+      - name: SSH into the VM
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: 22
+          script: |
+            cd /home/stinbank
+            git pull
+            sudo docker-compose up
