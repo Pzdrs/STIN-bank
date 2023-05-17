@@ -2,7 +2,7 @@ name: Deploy to a VM at my house
 
 on:
   push:
-    branches: [ master ]
+    branches: [ develop ]
   pull_request:
     branches: [ master ]
 
