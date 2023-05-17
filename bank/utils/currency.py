@@ -79,3 +79,5 @@ def convert(amount: float, from_currency: str, to_currency: str) -> float:
         raise CurrencyExchangeRateNotAvailable(
             from_currency if to_currency == get_bank_config().base_currency else to_currency
         )
+
+
