@@ -30,6 +30,4 @@ jobs:
           key: ${{ secrets.KEY }}
           port: 22
           script: |
-            cd /home/stinbank
-            git pull
-            sudo docker-compose up
+            echo "Hello, world!"
