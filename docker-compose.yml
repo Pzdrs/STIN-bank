@@ -7,9 +7,9 @@ services:
       - static:/app/static
       - media:/app/media
     environment:
-      - SECRET_KEY=$${{ secrets.DJANGO_SECRET_KEY }}
-      - TOTP_KEY=$${{ secrets.DJANGO_TOTP_KEY }}
       - RABBITMQ_HOST=rabbit
+    env_file:
+      - .env
     ports:
       - "8000:8000"
 

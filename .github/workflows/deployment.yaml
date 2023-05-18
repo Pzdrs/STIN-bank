@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
-  pull_request:
+  merge:
     branches: [ main ]
 
 jobs:
@@ -47,5 +47,8 @@ jobs:
           port: 22
           script: |
             cd /tmp
+            touch .env
+            echo DJANGO_SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+            echo DJANGO_TOTP_KEY=${{ secrets.TOTP_KEY }} >> .env
             docker compose pull
             docker compose up -d --force-recreate
