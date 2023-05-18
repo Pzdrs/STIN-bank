@@ -20,3 +20,5 @@ Semestrální práce pro předmět STIN
 ## Time tracking
 ### Desktop: 35h
 ### Laptop: 10.25h
+
+[![codecov](https://codecov.io/gh/Pzdrs/STIN-bank/branch/develop/graph/badge.svg?token=CW5L04S0IJ)](https://codecov.io/gh/Pzdrs/STIN-bank)
