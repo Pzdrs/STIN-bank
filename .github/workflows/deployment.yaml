@@ -52,6 +52,7 @@ jobs:
           port: 22
           script: |
             cd /tmp
+            rm .env
             touch .env
             echo DJANGO_SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             echo DJANGO_TOTP_KEY=${{ secrets.TOTP_KEY }} >> .env
