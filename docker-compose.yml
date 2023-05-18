@@ -2,6 +2,7 @@ version: '3.8'
 services:
   django_gunicorn:
     build: .
+    image: pycrs/stinbank:latest
     volumes:
       - static:/app/static
       - media:/app/media
@@ -14,6 +15,7 @@ services:
 
   stin_nginx:
     build: nginx
+    image: pycrs/stinbank-nginx:latest
     volumes:
       - static:/static
       - media:/media
