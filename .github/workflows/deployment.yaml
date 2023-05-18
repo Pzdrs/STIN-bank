@@ -47,4 +47,4 @@ jobs:
           port: 22
           script: |
             cd /tmp
-            sudo docker compose pull
+            docker compose pull
