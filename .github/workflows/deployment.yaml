@@ -16,6 +16,11 @@ jobs:
         with:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Create .env
+        run: |
+          touch .env
+          echo DJANGO_SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+          echo DJANGO_TOTP_KEY=${{ secrets.TOTP_KEY }} >> .env
       - name: Build the Docker image
         run: docker compose build
       - name: Push to private registry
