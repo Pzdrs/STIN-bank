@@ -31,7 +31,7 @@ DEBUG = config('DEBUG', False)
 
 ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost']
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'https://stin.pycrs.cz']
 
 AUTH_USER_MODEL = 'accounts.User'
 

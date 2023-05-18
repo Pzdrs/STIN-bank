@@ -2,18 +2,20 @@ version: '3.8'
 services:
   django_gunicorn:
     build: .
+    image: pycrs/stinbank:latest
     volumes:
       - static:/app/static
       - media:/app/media
-    env_file:
-      - .env
     environment:
+      - SECRET_KEY=$${{ secrets.REGISTRY_PASSWORD }}
+      - TOTP_KEY=$${{ secrets.REGISTRY_PASSWORD }}
       - RABBITMQ_HOST=rabbit
     ports:
       - "8000:8000"
 
-  nginx:
+  stin_nginx:
     build: nginx
+    image: pycrs/stinbank-nginx:latest
     volumes:
       - static:/static
       - media:/media
