@@ -12,7 +12,7 @@ services:
     ports:
       - "8000:8000"
 
-  nginx:
+  stin_nginx:
     build: nginx
     volumes:
       - static:/static
