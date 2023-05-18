@@ -1,0 +1,17 @@
+{% extends 'includes/base_table.html' %}
+{% load bank_template %}
+{% block table_class %}
+    is-fullwidth is-hoverable is-striped mb-3
+{% endblock %}
+{% block head %}
+    <th>Datum</th>
+    <th></th>
+    <th>Popis</th>
+    <th>Částka</th>
+{% endblock %}
+{% block for_each_row %}
+    {% render_transaction_table_row row account request %}
+{% endblock %}
+{% block empty_message %}
+    No transactions have been made from or to this account.
+{% endblock %}l %}

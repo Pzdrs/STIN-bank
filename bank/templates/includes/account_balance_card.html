@@ -1,0 +1,21 @@
+<div class="column is-4">
+    <div class="card">
+        <header class="card-header is-flex is-justify-content-space-between">
+            <p class="px-3 py-4 has-text-weight-medium">
+                {{ balance.balance_display }}
+                <span class="has-text-weight-light">({{ balance.currency }})</span>
+            </p>
+            {% if balance.default_balance %}
+                <span class="tag is-success is-light" style="border-radius: 0 4px 0 4px">Default</span>
+            {% else %}
+                <form action="{% url 'bank:account-change-default-currency' balance.account.pk %}"
+                      method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="currency" value="{{ balance.currency }}">
+                    <input type="checkbox" onclick="this.form.submit()" class="m-2"
+                           title="Nastavit tuto měnu jako výchozí pro tento účet">
+                </form>
+            {% endif %}
+        </header>
+    </div>
+</div>

@@ -1,0 +1,20 @@
+<ul class="pagination-list">
+    {% for page in page_range %}
+        {% if page %}
+            {% if page == current_page %}
+                <li>
+                    <a class="pagination-link is-current" aria-label="Page {{ page }}"
+                       aria-current="page">{{ page }}</a>
+                </li>
+            {% else %}
+                <li>
+                    <a href="?page={{ page }}" class="pagination-link" aria-label="Goto page {{ page }}">{{ page }}</a>
+                </li>
+            {% endif %}
+        {% else %}
+            <li>
+                <span class="pagination-ellipsis">{{ ellipsis }}</span>
+            </li>
+        {% endif %}
+    {% endfor %}
+</ul>

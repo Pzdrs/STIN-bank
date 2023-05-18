@@ -1,1 +1,20 @@
 {% extends 'base_template.html' %}
+{% block content %}
+    <div>
+        <p class="is-size-4 has-text-info-dark">
+            {% if not request.user.last_name or not request.user.first_name %}
+                Neznámý uživatel ({{ request.user.username }})
+            {% else %}
+                {{ request.user.get_full_name_reversed }}
+            {% endif %}
+        </p>
+        <p class="has-text-grey">občan</p>
+    </div>
+    <div class="columns is-multiline mt-2">
+        {% for account in accounts %}
+            <div class="column is-4">
+                {% include 'includes/account_card.html' with account=account %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

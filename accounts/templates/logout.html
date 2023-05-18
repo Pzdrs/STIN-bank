@@ -1,0 +1,22 @@
+{% extends 'base_template.html' %}
+{% block body %}
+    <section class="hero is-light is-fullheight">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-centered">
+                    <div class="column is-two-thirds has-text-centered">
+                        <h1 class="title is-1">
+                            Byl/a jste odhlášen/a
+                        </h1>
+                        <p class="subtitle is-3">
+                            Můžete se znovu přihlásit níže.
+                        </p>
+                        <a class="button is-large is-link" href="{% url 'accounts:login' %}">
+                            Přihlásit se
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

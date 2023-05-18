@@ -1,0 +1,38 @@
+{% extends 'base_modal.html' %}
+{% load static %}
+{% block id %}open-2fa-qrcode{% endblock %}
+{% block animation %}modal-fx-fadeInScale{% endblock %}
+{% block modal_body %}
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">
+                Naskenujte prosím tento QR kód do vaší 2FA aplikace
+            </p>
+            <button class="card-header-icon modal-button-close" aria-label="close">
+                <span class="icon">
+                    <i class="fa-solid fa-xmark"></i>
+                </span>
+            </button>
+        </header>
+        <div class="card-image">
+            <figure class="image">
+                <img src="/media/qr_codes/{{ request.user.pk }}.png" alt="Your QR code">
+            </figure>
+        </div>
+        <div class="card-footer">
+            <div class="p-2">
+                <p>
+                    Pokud se QR kód nezobrazí, zkuste obnovit stránku. V případě,
+                    že problém přetrvává, níže naleznete OTP URI.
+
+                </p>
+                <details style="border: 1px solid #dbdbdb;border-radius: 4px;padding: 0.5rem;">
+                    <summary style="cursor: pointer">OTP URI</summary>
+                    <p>
+                        {{ fallback_totp_uri }}
+                    </p>
+                </details>
+            </div>
+        </div>
+    </div>
+{% endblock %}

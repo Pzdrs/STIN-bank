@@ -22,6 +22,21 @@
     {% block extra_js %}{% endblock %}
 </head>
 <body>
-hello
+{% block body %}
+    {% include 'includes/header.html' %}
+    <main>
+        <div class="container">
+            {% block messages %}
+                {% include 'includes/messages.html' %}
+            {% endblock %}
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    {% include 'includes/footer.html' %}
+    {% block modals %}{% endblock %}
+    {% block pageloader %}
+        {% include 'includes/page_loader.html' %}
+    {% endblock %}
+{% endblock %}
 </body>
 </html>

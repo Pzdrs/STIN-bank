@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  django_gunicorn:
+    build: .
+    volumes:
+      - static:/app/static
+      - media:/app/media
+    env_file:
+      - .env
+    environment:
+      - RABBITMQ_HOST=rabbit
+    ports:
+      - "8000:8000"
+
+  nginx:
+    build: nginx
+    volumes:
+      - static:/static
+      - media:/media
+    ports:
+      - "80:80"
+    depends_on:
+      - django_gunicorn
+
+  rabbit:
+    image: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  static:
+  media:

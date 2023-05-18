@@ -1,0 +1,26 @@
+{% load bank_template %}
+<div class="card">
+    <a href="{% url 'bank:account-detail' account.pk %}">
+        <header class="card-header p-1">
+            <div class="p-4">
+                <i class="fa-solid fa-coins"></i>
+            </div>
+            <div class="my-auto">
+                <p class="has-text-weight-bold has-text-info-dark">
+                    {{ account.display_name }}
+                </p>
+                <p class="has-text-grey">{{ account.get_account_number }}</p>
+            </div>
+        </header>
+    </a>
+    <div class="card-content p-3">
+        <div class="content has-text-right" style="padding-top: 75px;">
+            <p class="has-text-grey m-0">aktuální použitelný zůstatek</p>
+            {% render_account_balance account request 5 %}
+        </div>
+        <div class="is-flex is-justify-content-space-around">
+            <a href="{% url 'bank:account-transaction' account.pk %}" class="button is-danger px-5">Platba</a>
+            <a href="{% url 'bank:account-history' account.pk %}" class="button is-danger px-5">Historie</a>
+        </div>
+    </div>
+</div>

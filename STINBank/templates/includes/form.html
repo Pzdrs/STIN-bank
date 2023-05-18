@@ -1,0 +1,24 @@
+{% load common_template %}
+{% for field in form %}
+    {% if field_wrap %}
+        <div class="field">
+            {{ field.errors }}
+            {% if label %}
+                <label for="{{ field.id_for_label }}" class="label">{{ field.label }}</label>
+            {% endif %}
+            <div class="control">
+                {% render_form_field field %}
+            </div>
+            <p class="help">{{ field.help_text }}</p>
+        </div>
+    {% else %}
+        {{ field.errors }}
+        {% if label %}
+            <label for="{{ field.id_for_label }}" class="label">{{ field.label }}</label>
+        {% endif %}
+        <div class="control">
+            {% render_form_field field %}
+        </div>
+        <p class="help">{{ field.help_text }}</p>
+    {% endif %}
+{% endfor %}
