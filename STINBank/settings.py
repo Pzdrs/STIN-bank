@@ -29,7 +29,9 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', False)
 
-ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', '*').split(',')
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost']
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -162,7 +164,7 @@ CELERY_BROKER_URL = f"{RABBITMQ['PROTOCOL']}://{RABBITMQ['USER']}:{RABBITMQ['PAS
 
 CELERY_BEAT_SCHEDULE = {
     'exchange_rate_6h_periodic_update': {
-        'task': 'bank.tasks.update_rates',
+        'task': 'bank.tasks.update_rates_task',
         'schedule': timedelta(hours=6)
     }
 }

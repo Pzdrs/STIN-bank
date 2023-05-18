@@ -1,10 +1,11 @@
 name: Deploy to a VM at my house
 
 on:
+  workflow_dispatch:
   push:
     branches: [ develop ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -19,4 +20,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: 22
-          script: whoami
+          script: |
+            cd /home/github/stin
+            git checkout develop
+            git pull
+            docker compose up -d --force-recreate
