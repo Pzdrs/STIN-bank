@@ -3,7 +3,7 @@ name: Deploy to a VM at my house
 on:
   workflow_dispatch:
   push:
-    branches: [ develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -21,7 +21,6 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 22
           script: |
-            cd /home/github/stin
-            git checkout develop
-            git pull
-            docker compose up -d --force-recreate
+            cd /home/github
+            mkdir stin
+            cd stin
