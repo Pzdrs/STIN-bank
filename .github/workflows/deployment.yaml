@@ -57,3 +57,4 @@ jobs:
             echo DJANGO_TOTP_KEY=${{ secrets.TOTP_KEY }} >> .env
             docker compose pull
             docker compose up -d --force-recreate
+            docker ps
