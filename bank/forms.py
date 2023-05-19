@@ -26,9 +26,6 @@ class TransactionForm(forms.Form):
         super().__init__(*args, **kwargs)
         if account:
             self.fields['origin_account_pk'].initial = account.pk
-            self.fields['currency'].choices = (
-                (bal.currency, CURRENCIES[bal.currency]) for bal in account.get_balances()
-            )
             self.fields['currency'].initial = account.get_default_currency()
 
     def clean(self):

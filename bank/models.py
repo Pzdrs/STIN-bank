@@ -105,15 +105,25 @@ class Account(models.Model):
             else:
                 AccountBalance.objects.create(account=self, currency=currency, balance=amount)
 
-    def subtract_funds(self, amount: float, currency: str):
+    def subtract_funds(self, amount: float, currency: str, transfer: bool = False):
         """
         Subtracts funds from the default currency balance of this account
         """
         currency_balance: AccountBalance = self.get_balance(currency)
-        if currency_balance and currency_balance.balance >= amount:
-            currency_balance.subtract_funds(amount)
+
+        if currency_balance:
+            if currency_balance.balance >= amount:
+                currency_balance.subtract_funds(amount)
+            else:
+                raise Transaction.InsufficientFunds(currency)
         else:
-            raise Transaction.InsufficientFunds(currency)
+            if transfer:
+                currency_balance = self.get_default_balance()
+                currency_balance.subtract_funds(
+                    convert(amount, currency, currency_balance.currency)
+                )
+            else:
+                raise Transaction.InsufficientFunds(currency)
 
     @property
     def get_account_number(self):
@@ -207,6 +217,9 @@ class AccountBalance(models.Model):
         return format_currency(
             self.balance, self.currency, format=u"#,##0.00 ¤", locale="cs_CZ"
         )
+
+    def __str__(self):
+        return f'{self.balance} {self.currency}'
 
 
 class CurrencyRate(models.Model):
@@ -324,7 +337,7 @@ class Transaction(models.Model):
     def authorize(self):
         match self.type:
             case self.TransactionType.TRANSFER:
-                self.origin.subtract_funds(self.amount, self.currency)
+                self.origin.subtract_funds(self.amount, self.currency, True)
                 self.target.add_funds(self.amount, self.currency, convert_over_create=True)
             case self.TransactionType.DEPOSIT:
                 self.target.add_funds(self.amount, self.currency)
@@ -333,3 +346,6 @@ class Transaction(models.Model):
             case _:
                 raise Transaction.InvalidTransactionType(self.type)
         self.save()
+
+    def __str__(self):
+        return f'{self.type} - {self.amount} {self.currency} | {self.origin} -> {self.target}'
