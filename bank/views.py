@@ -144,9 +144,14 @@ class SubtractFundsView(BankView, View):
 
     def post(self, request, *args, **kwargs):
         account: Account = Account.objects.get(pk=self.kwargs['pk'])
-        Transaction.objects.create_non_transfer(
-            account, Transaction.TransactionType.WITHDRAWAL,
-            float(request.POST['amount']), request.POST['currency'],
-            request
-        )
+        currency_balance: AccountBalance = account.get_balance(request.POST['currency'])
+        if currency_balance.balance == 0:
+            currency_balance.delete()
+            messages.success(request, f'Měnový účet {request.POST["currency"]} byl smazán.')
+        else:
+            Transaction.objects.create_non_transfer(
+                account, Transaction.TransactionType.WITHDRAWAL,
+                float(request.POST['amount']), request.POST['currency'],
+                request
+            )
         return HttpResponseRedirect(reverse('bank:account-detail', kwargs={'pk': account.pk}))
