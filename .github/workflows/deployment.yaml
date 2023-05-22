@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
-  pull_request:
+  release:
     branches: [ main ]
 
 jobs:
@@ -16,6 +16,11 @@ jobs:
         with:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Create .env
+        run: |
+          touch .env
+          echo DJANGO_SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+          echo DJANGO_TOTP_KEY=${{ secrets.TOTP_KEY }} >> .env
       - name: Build the Docker image
         run: docker compose build
       - name: Push to private registry
@@ -47,5 +52,10 @@ jobs:
           port: 22
           script: |
             cd /tmp
+            rm .env
+            touch .env
+            echo SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }} >> .env
+            echo TOTP_KEY=${{ secrets.DJANGO_TOTP_KEY }} >> .env
             docker compose pull
             docker compose up -d --force-recreate
+            docker ps
