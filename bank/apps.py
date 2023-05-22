@@ -11,6 +11,10 @@ class BankConfig(AppConfig):
     # Used as a middle man for currency exchanges
     base_currency = 'CZK'
     transaction_history_paginate_by = 10
+    # overdraft_limit is a percentage of the account's balance
+    overdraft_limit = .1
+    # overdraft_interest is a percentage of the account's balance
+    overdraft_interest = .1
     # TODO
     # -1 for unlimited
     max_accounts = 5

@@ -112,11 +112,20 @@ class Account(models.Model):
         currency_balance: AccountBalance = self.get_balance(currency)
 
         if currency_balance:
+            # ma vedeny ucet v dane mene prevodu
             if currency_balance.balance >= amount:
                 currency_balance.subtract_funds(amount)
             else:
-                raise Transaction.InsufficientFunds(currency)
+                # nema dostatek penez na uctu v dane mene prevodu
+                if amount < (currency_balance.balance + currency_balance.balance * get_bank_config().overdraft_limit):
+                    # ma povoleny prekryv
+                    currency_balance.subtract_funds(amount)
+                    currency_balance.subtract_funds(abs(currency_balance.balance)*get_bank_config().overdraft_interest)
+                else:
+                    # not even overdraft will save ur poor ass
+                    raise Transaction.InsufficientFunds(currency)
         else:
+            # nema vedeny ucet v dane mene prevodu
             if transfer:
                 currency_balance = self.get_default_balance()
                 currency_balance.subtract_funds(
