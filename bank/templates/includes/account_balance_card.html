@@ -5,17 +5,29 @@
                 {{ balance.balance_display }}
                 <span class="has-text-weight-light">({{ balance.currency }})</span>
             </p>
-            {% if balance.default_balance %}
-                <span class="tag is-success is-light" style="border-radius: 0 4px 0 4px">Default</span>
-            {% else %}
-                <form action="{% url 'bank:account-change-default-currency' balance.account.pk %}"
-                      method="post">
+            <section class="is-flex">
+                {% if balance.balance != 0 or not balance.default_balance %}
+                    <form method="post" action="{% if balance.balance > 0 %}{% url 'bank:account-subtract-funds' account.pk %}{% else %}{% url 'bank:account-add-funds' account.pk %}{% endif %}" class="pr-2">
                     {% csrf_token %}
                     <input type="hidden" name="currency" value="{{ balance.currency }}">
-                    <input type="checkbox" onclick="this.form.submit()" class="m-2"
-                           title="Nastavit tuto měnu jako výchozí pro tento účet">
+                    <input type="hidden" name="amount" value="{{ balance.balance }}">
+                    <a title="Vynulovat měnový účet" onclick="this.parentElement.submit()">
+                        <i class="fa-solid fa-xmark has-text-danger"></i>
+                    </a>
+                {% endif %}
                 </form>
-            {% endif %}
+                {% if balance.default_balance %}
+                    <span class="tag is-success is-light" style="border-radius: 0 4px 0 4px">Default</span>
+                {% else %}
+                    <form action="{% url 'bank:account-change-default-currency' balance.account.pk %}"
+                          method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="currency" value="{{ balance.currency }}">
+                        <input type="checkbox" onclick="this.form.submit()" class="m-2"
+                               title="Nastavit tuto měnu jako výchozí pro tento účet">
+                    </form>
+                {% endif %}
+            </section>
         </header>
     </div>
 </div>
