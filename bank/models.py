@@ -105,14 +105,28 @@ class Account(models.Model):
             else:
                 AccountBalance.objects.create(account=self, currency=currency, balance=amount)
 
-    def subtract_funds(self, amount: float, currency: str):
+    def subtract_funds(self, amount: float, currency: str, transfer: bool = False):
         """
         Subtracts funds from the default currency balance of this account
         """
         currency_balance: AccountBalance = self.get_balance(currency)
-        if currency_balance and currency_balance.balance >= amount:
-            currency_balance.subtract_funds(amount)
+
+        if currency_balance:
+            # ma vedeny ucet v dane mene prevodu
+            if currency_balance.has_enough_for_transaction(amount):
+                currency_balance.subtract_funds(amount)
+            else:
+                raise Transaction.InsufficientFunds(currency)
         else:
+            # nema vedeny ucet v dane mene prevodu
+            if transfer:
+                # pokud se jedna o prevod, tak zkousime jeste defaultni menu
+                currency_balance = self.get_default_balance()
+                converted_amount = convert(amount, currency, currency_balance.currency)
+
+                if currency_balance.has_enough_for_transaction(converted_amount):
+                    currency_balance.subtract_funds(converted_amount)
+                    return
             raise Transaction.InsufficientFunds(currency)
 
     @property
@@ -198,6 +212,11 @@ class AccountBalance(models.Model):
 
     def subtract_funds(self, amount: float):
         self.add_funds(-amount)
+        if amount > self.balance:
+            # overdraft
+            self.add_funds(
+                -(abs(self.balance) * get_bank_config().overdraft_interest)
+            )
 
     def convert_to(self, currency: str) -> float:
         return convert(self.balance, self.currency, currency)
@@ -207,6 +226,12 @@ class AccountBalance(models.Model):
         return format_currency(
             self.balance, self.currency, format=u"#,##0.00 ¤", locale="cs_CZ"
         )
+
+    def has_enough_for_transaction(self, amount: float) -> bool:
+        return amount < (self.balance + self.balance * get_bank_config().overdraft_limit)
+
+    def __str__(self):
+        return f'{self.balance} {self.currency}'
 
 
 class CurrencyRate(models.Model):
@@ -324,7 +349,7 @@ class Transaction(models.Model):
     def authorize(self):
         match self.type:
             case self.TransactionType.TRANSFER:
-                self.origin.subtract_funds(self.amount, self.currency)
+                self.origin.subtract_funds(self.amount, self.currency, True)
                 self.target.add_funds(self.amount, self.currency, convert_over_create=True)
             case self.TransactionType.DEPOSIT:
                 self.target.add_funds(self.amount, self.currency)
@@ -333,3 +358,6 @@ class Transaction(models.Model):
             case _:
                 raise Transaction.InvalidTransactionType(self.type)
         self.save()
+
+    def __str__(self):
+        return f'{self.type} - {self.amount} {self.currency} | {self.origin} -> {self.target}'

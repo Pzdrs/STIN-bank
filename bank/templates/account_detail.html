@@ -8,7 +8,10 @@
     </span>
     <br>
     <span class="is-size-6 has-text-grey">
-        {{ object.get_account_number }}
+        <span>{{ object.get_account_number }}</span>
+        <a class="pl-1" onclick="navigator.clipboard.writeText(this.previousElementSibling.innerHTML.split('/')[0])">
+            <i class="fa-solid fa-copy"></i>
+        </a>
     </span>
     <hr class="my-2">
     <p class="mb-2">
