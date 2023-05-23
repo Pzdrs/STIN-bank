@@ -42,7 +42,7 @@ def update_rates(debug: bool = False):
         except ObjectDoesNotExist:
             if debug:
                 print(f'Creating a new CurrencyRate object for {currency_data} with the value {currency_data.rate}...')
-            currency_rate = CurrencyRate(currency=currency_data.code, rate=currency_data.rate)
+            currency_rate = CurrencyRate(currency=currency_data.code, rate=currency_data.rate/currency_data.amount)
             changes_made = True
         currency_rate.save()
         if debug:
