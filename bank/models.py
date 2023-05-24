@@ -57,7 +57,7 @@ class Account(models.Model):
         """
         Returns an AccountBalanceQuerySet with all the balances associated with this account
         """
-        return AccountBalance.objects.for_account(self)
+        return AccountBalance.objects.for_account(self).order_by('-default_balance')
 
     def get_balance(self, currency: str):
         """
@@ -105,27 +105,39 @@ class Account(models.Model):
             else:
                 AccountBalance.objects.create(account=self, currency=currency, balance=amount)
 
-    def subtract_funds(self, amount: float, currency: str, transfer: bool = False):
+    def subtract_funds(self, amount: float, currency: str, transfer: bool = False, debug: bool = False):
         """
         Subtracts funds from the default currency balance of this account
         """
         currency_balance: AccountBalance = self.get_balance(currency)
+        if debug:
+            print(f'Attempting to subtract {amount}{currency}')
 
         if currency_balance:
+            if debug:
+                print(f'Origin ucet ma ucet v mene {currency}')
             # ma vedeny ucet v dane mene prevodu
             if currency_balance.has_enough_for_transaction(amount):
-                currency_balance.subtract_funds(amount)
+                if debug:
+                    print('Ma dost prostredku')
+                currency_balance.subtract_funds(amount, debug)
             else:
                 raise Transaction.InsufficientFunds(currency)
         else:
+            if debug:
+                print(f'Origin ucet nema ucet v mene {currency}')
             # nema vedeny ucet v dane mene prevodu
             if transfer:
                 # pokud se jedna o prevod, tak zkousime jeste defaultni menu
                 currency_balance = self.get_default_balance()
                 converted_amount = convert(amount, currency, currency_balance.currency)
+                if debug:
+                    print(f'{amount}{currency} prevedeno na {converted_amount}{currency_balance.currency}')
 
                 if currency_balance.has_enough_for_transaction(converted_amount):
-                    currency_balance.subtract_funds(converted_amount)
+                    if debug:
+                        print('Ma dost prostredku')
+                    currency_balance.subtract_funds(converted_amount, debug)
                     return
             raise Transaction.InsufficientFunds(currency)
 
@@ -210,13 +222,22 @@ class AccountBalance(models.Model):
         self.balance += amount
         self.save()
 
-    def subtract_funds(self, amount: float):
+    def subtract_funds(self, amount: float, debug: bool = False):
+        if debug:
+            print(f'Odecitam {amount} z AccountBalance {self}')
         self.add_funds(-amount)
+        if debug:
+            print(f'Odecteno. Current AccountBalance {self}')
         if amount > self.balance:
+            if debug:
+                print('Using overdraft')
             # overdraft
-            self.add_funds(
-                -(abs(self.balance) * get_bank_config().overdraft_interest)
-            )
+            interest = (abs(self.balance) * get_bank_config().overdraft_interest)
+            if debug:
+                print(f'Odecitam uroky {interest}')
+            self.add_funds(-interest)
+            if debug:
+                print(f'Odecteno. Current AccountBalance {self}')
 
     def convert_to(self, currency: str) -> float:
         return convert(self.balance, self.currency, currency)
@@ -349,7 +370,7 @@ class Transaction(models.Model):
     def authorize(self):
         match self.type:
             case self.TransactionType.TRANSFER:
-                self.origin.subtract_funds(self.amount, self.currency, True)
+                self.origin.subtract_funds(self.amount, self.currency, transfer=True)
                 self.target.add_funds(self.amount, self.currency, convert_over_create=True)
             case self.TransactionType.DEPOSIT:
                 self.target.add_funds(self.amount, self.currency)
