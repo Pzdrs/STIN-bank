@@ -31,7 +31,7 @@ DEBUG = config('DEBUG', False)
 
 ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', '').split(',')
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', 'https://localhost').split(',')
 
 AUTH_USER_MODEL = 'accounts.User'
 
