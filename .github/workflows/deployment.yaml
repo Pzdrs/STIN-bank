@@ -26,6 +26,7 @@ jobs:
       - name: Push to private registry
         run: docker compose push
   deploy-job:
+    if: false
     needs: [ build ]
     runs-on: ubuntu-latest
     steps:
